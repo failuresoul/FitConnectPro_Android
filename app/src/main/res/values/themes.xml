@@ -1,9 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.FitConnectPro" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.FitConnectPro" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <!-- Ensure content appears below status bar -->
+        <item name="android:fitsSystemWindows">false</item>
     </style>
 
     <style name="Theme.FitConnectPro" parent="Base.Theme.FitConnectPro" />
+
+    <!-- Theme without ActionBar for splash screen -->
+    <style name="Theme.FitConnectPro.NoActionBar" parent="Theme.FitConnectPro">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+    </style>
 </resources>

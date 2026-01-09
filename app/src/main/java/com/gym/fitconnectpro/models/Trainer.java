@@ -1,25 +1,21 @@
 package com.gym.fitconnectpro.models;
 
-public class Admin {
+public class Trainer {
     private int id;
     private int userId;
     private String username;
+    private String fullName;
     private String email;
     private String phone;
+    private String specialization;
+    private int experienceYears;
+    private String certification;
+    private double salary;
     private String status;
     private String createdAt;
     private String updatedAt;
 
-    public Admin() {
-    }
-
-    public Admin(int id, int userId, String username, String email, String phone, String status) {
-        this.id = id;
-        this.userId = userId;
-        this.username = username;
-        this.email = email;
-        this.phone = phone;
-        this.status = status;
+    public Trainer() {
     }
 
     // Getters and Setters
@@ -47,6 +43,14 @@ public class Admin {
         this.username = username;
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -61,6 +65,38 @@ public class Admin {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
+    }
+
+    public int getExperienceYears() {
+        return experienceYears;
+    }
+
+    public void setExperienceYears(int experienceYears) {
+        this.experienceYears = experienceYears;
+    }
+
+    public String getCertification() {
+        return certification;
+    }
+
+    public void setCertification(String certification) {
+        this.certification = certification;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
+    public void setSalary(double salary) {
+        this.salary = salary;
     }
 
     public String getStatus() {
@@ -89,12 +125,15 @@ public class Admin {
 
     @Override
     public String toString() {
-        return "Admin{" +
+        return "Trainer{" +
                 "id=" + id +
                 ", userId=" + userId +
                 ", username='" + username + '\'' +
+                ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
+                ", specialization='" + specialization + '\'' +
+                ", experienceYears=" + experienceYears +
                 ", status='" + status + '\'' +
                 '}';
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Primary Colors -->
-    <color name="primary">#1E88E5</color> <!-- Updated to a brighter blue like the design -->
+    <color name="primary">#1E88E5</color>
     <color name="primary_dark">#1565C0</color>
     <color name="primary_light">#64B5F6</color>
     <color name="accent">#03DAC6</color>
@@ -9,7 +9,7 @@
     <!-- Background Colors -->
     <color name="background">#FFFFFF</color>
     <color name="background_dark">#121212</color>
-    <color name="surface">#F5F7F8</color> <!-- Light grey for card areas -->
+    <color name="surface">#F5F7F8</color>
     <color name="surface_dark">#1E1E1E</color>
     
     <!-- Text Colors -->
@@ -40,15 +40,29 @@
     <color name="colorPrimary">#1E88E5</color>
     <color name="gray">#757575</color>
     <color name="gray_light">#E0E0E0</color>
+    <color name="gray_background">#F5F5F5</color>
 
     <!-- Button Colors for Admin Dashboard -->
     <color name="btn_logout">#F44336</color>
     <color name="btn_add_member">#4CAF50</color>
     <color name="btn_add_trainer">#FF9800</color>
-    <color name="btn_assign_trainer">#009688</color> <!-- Teal/Green for distinction -->
+    <color name="btn_assign_trainer">#009688</color>
 
     <!-- Navigation Colors -->
-    <color name="nav_background">#263238</color> <!-- Dark Blue/Grey from image -->
+    <color name="nav_background">#263238</color>
     <color name="nav_item_text">#FFFFFF</color>
     <color name="nav_item_icon">#FFFFFF</color>
+
+    <!-- Drawer Colors -->
+    <color name="drawer_background">#263238</color>
+    <color name="drawer_item_color">#FFFFFF</color>
+
+    <!-- Secondary Colors -->
+    <color name="secondary">#FF5722</color>
+    <color name="secondary_dark">#E64A19</color>
+    <color name="secondary_light">#FFCCBC</color>
+
+    <!-- Success Color variations -->
+    <color name="success_dark">#388E3C</color>
+    <color name="success_light">#C8E6C9</color>
 </resources>

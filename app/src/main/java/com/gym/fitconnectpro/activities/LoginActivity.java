@@ -1,7 +1,10 @@
-package com.gym.fitconnectpro.activities.auth;
+package com.gym.fitconnectpro.activities;
+
+
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -17,18 +20,22 @@ import com.gym.fitconnectpro.R;
 import com.gym.fitconnectpro.activities.admin.AdminDashboardActivity;
 import com.gym.fitconnectpro.dao.AuthDAO;
 import com.gym.fitconnectpro.models.User;
-import com.gym.fitconnectpro.models.Trainer;
-import com.gym.fitconnectpro.models.Member;
 import com.gym.fitconnectpro.services.Session;
 import com.gym.fitconnectpro.utils.ValidationUtil;
 
+/**
+ * Login Activity for FitConnect Pro
+ * Handles authentication for Admin, Trainer, and Member users
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etUsername;
     private EditText etPassword;
-    private Button btnLogin;
     private RadioGroup radioGroupUserType;
-    private RadioButton rbAdmin, rbTrainer, rbMember;
+    private RadioButton rbAdmin;
+    private RadioButton rbTrainer;
+    private RadioButton rbMember;
+    private Button btnLogin;
     private TextView tvForgotPassword;
 
     private AuthDAO authDAO;
@@ -43,28 +50,17 @@ public class LoginActivity extends AppCompatActivity {
         authDAO = new AuthDAO(this);
         session = Session.getInstance(this);
 
-        // Check if user is already logged in
-        if (session.isLoggedIn()) {
-            navigateToDashboard(session.getUserType());
-            return;
-        }
+        // Auto-login disabled for testing
+        // if (session.isLoggedIn()) {
+        //     navigateToDashboard(session.getUserType());
+        //     return;
+        // }
 
-        // Bind Views
-        etUsername = findViewById(R.id.etUsername);
-        etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        radioGroupUserType = findViewById(R.id.radioGroupUserType);
-        rbAdmin = findViewById(R.id.rbAdmin);
-        rbTrainer = findViewById(R.id.rbTrainer);
-        rbMember = findViewById(R.id.rbMember);
-        tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        // Initialize UI components
+        initializeViews();
 
-        // Default selection
-        rbAdmin.setChecked(true);
-
-        btnLogin.setOnClickListener(v -> handleLogin());
-        
-        tvForgotPassword.setOnClickListener(v -> handleForgotPassword());
+        // Set listeners
+        setListeners();
 
         // Handle back press with new API
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -75,10 +71,50 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Initialize all UI components
+     */
+    private void initializeViews() {
+        etUsername = findViewById(R.id.etUsername);
+        etPassword = findViewById(R.id.etPassword);
+        radioGroupUserType = findViewById(R.id.radioGroupUserType);
+        rbAdmin = findViewById(R.id.rbAdmin);
+        rbTrainer = findViewById(R.id.rbTrainer);
+        rbMember = findViewById(R.id.rbMember);
+        btnLogin = findViewById(R.id.btnLogin);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
+
+        // Set default selection to Admin
+        rbAdmin.setChecked(true);
+    }
+
+    /**
+     * Set click listeners
+     */
+    private void setListeners() {
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleLogin();
+            }
+        });
+
+        tvForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleForgotPassword();
+            }
+        });
+    }
+
+    /**
+     * Handle login button click
+     */
     private void handleLogin() {
+        // Get input values
         String username = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
-        
+
         // Validate inputs
         if (!validateInputs(username, password)) {
             return;
@@ -87,12 +123,17 @@ public class LoginActivity extends AppCompatActivity {
         // Get selected user type
         String userType = getSelectedUserType();
 
-        // Show progress
+        // Show progress (optional)
         btnLogin.setEnabled(false);
         btnLogin.setText("Logging in...");
 
-        // Authenticate in background thread
-        new Thread(() -> authenticateUser(username, password, userType)).start();
+        // Authenticate based on user type
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                authenticateUser(username, password, userType);
+            }
+        }).start();
     }
 
     /**
@@ -161,26 +202,32 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            boolean finalSuccess = success;
-            String finalUserType = userType;
+            final boolean loginSuccess = success;
+            final String finalUserType = userType;
 
             // Update UI on main thread
-            runOnUiThread(() -> {
-                btnLogin.setEnabled(true);
-                btnLogin.setText("LOGIN");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    btnLogin.setEnabled(true);
+                    btnLogin.setText("LOGIN");
 
-                if (finalSuccess) {
-                    onLoginSuccess(finalUserType);
-                } else {
-                    onLoginFailure();
+                    if (loginSuccess) {
+                        onLoginSuccess(finalUserType);
+                    } else {
+                        onLoginFailure();
+                    }
                 }
             });
 
         } catch (Exception e) {
-            runOnUiThread(() -> {
-                btnLogin.setEnabled(true);
-                btnLogin.setText("LOGIN");
-                showErrorDialog("Login Error", "An error occurred during login. Please try again.");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    btnLogin.setEnabled(true);
+                    btnLogin.setText("LOGIN");
+                    showErrorDialog("Login Error", "An error occurred during login. Please try again.");
+                }
             });
         }
     }
@@ -190,6 +237,8 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void onLoginSuccess(String userType) {
         Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show();
+
+        // Navigate to appropriate dashboard
         navigateToDashboard(userType);
     }
 
@@ -201,53 +250,50 @@ public class LoginActivity extends AppCompatActivity {
             "Invalid username or password.\n\n" +
             "Please check your credentials and try again.");
 
+        // Clear password field
         etPassword.setText("");
         etPassword.requestFocus();
     }
 
     /**
-     * Navigate to appropriate dashboard
+     * Navigate to appropriate dashboard based on user type
      */
     private void navigateToDashboard(String userType) {
-        Intent intent;
-
         // Only admin dashboard is available
         if ("ADMIN".equals(userType)) {
-            intent = new Intent(this, AdminDashboardActivity.class);
+            Intent intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
+            startActivity(intent);
+            finish(); // Prevent going back to login screen
         } else {
             Toast.makeText(this, "Dashboard not available for " + userType, Toast.LENGTH_SHORT).show();
-            return;
         }
-
-        startActivity(intent);
-        finish();
     }
 
     /**
-     * Handle forgot password
+     * Handle forgot password click
      */
     private void handleForgotPassword() {
-        new AlertDialog.Builder(this)
-            .setTitle("Forgot Password")
-            .setMessage("To reset your password, please contact the system administrator.\n\n" +
-                    "Admin Email: admin@fitconnectpro.com\n" +
-                    "Phone: 1234567890\n\n" +
-                    "For security reasons, password reset must be done by the administrator.")
-            .setIcon(android.R.drawable.ic_dialog_info)
-            .setPositiveButton("OK", null)
-            .show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Forgot Password");
+        builder.setMessage("To reset your password, please contact the system administrator.\n\n" +
+                "Admin Email: admin@fitconnectpro.com\n" +
+                "Phone: 1234567890\n\n" +
+                "For security reasons, password reset must be done by the administrator.");
+        builder.setIcon(android.R.drawable.ic_dialog_info);
+        builder.setPositiveButton("OK", null);
+        builder.show();
     }
 
     /**
      * Show error dialog
      */
     private void showErrorDialog(String title, String message) {
-        new AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setIcon(android.R.drawable.ic_dialog_alert)
-            .setPositiveButton("OK", null)
-            .show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title);
+        builder.setMessage(message);
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
+        builder.setPositiveButton("OK", null);
+        builder.show();
     }
 
     /**
@@ -257,8 +303,16 @@ public class LoginActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
             .setTitle("Exit Application")
             .setMessage("Are you sure you want to exit?")
-            .setPositiveButton("Yes", (dialog, which) -> finishAffinity())
+            .setPositiveButton("Yes", (dialog, which) -> {
+                finishAffinity();
+            })
             .setNegativeButton("No", null)
             .show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Clean up resources if needed
     }
 }
