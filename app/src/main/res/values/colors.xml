@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors -->
+    <color name="primary">#1E88E5</color> <!-- Updated to a brighter blue like the design -->
+    <color name="primary_dark">#1565C0</color>
+    <color name="primary_light">#64B5F6</color>
+    <color name="accent">#03DAC6</color>
+    
+    <!-- Background Colors -->
+    <color name="background">#FFFFFF</color>
+    <color name="background_dark">#121212</color>
+    <color name="surface">#F5F7F8</color> <!-- Light grey for card areas -->
+    <color name="surface_dark">#1E1E1E</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_blue">#1E88E5</color>
+    
+    <!-- Status Colors -->
+    <color name="success">#4CAF50</color>
+    <color name="error">#F44336</color>
+    <color name="warning">#FF9800</color>
+    <color name="info">#2196F3</color>
+    
+    <!-- User Role Colors -->
+    <color name="admin_color">#E91E63</color>
+    <color name="trainer_color">#FF5722</color>
+    <color name="member_color">#2196F3</color>
+    
+    <!-- Common Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+    <color name="divider">#E0E0E0</color>
+
+    <!-- Additional Colors for Login -->
+    <color name="colorPrimary">#1E88E5</color>
+    <color name="gray">#757575</color>
+    <color name="gray_light">#E0E0E0</color>
+
+    <!-- Button Colors for Admin Dashboard -->
+    <color name="btn_logout">#F44336</color>
+    <color name="btn_add_member">#4CAF50</color>
+    <color name="btn_add_trainer">#FF9800</color>
+    <color name="btn_assign_trainer">#009688</color> <!-- Teal/Green for distinction -->
+
+    <!-- Navigation Colors -->
+    <color name="nav_background">#263238</color> <!-- Dark Blue/Grey from image -->
+    <color name="nav_item_text">#FFFFFF</color>
+    <color name="nav_item_icon">#FFFFFF</color>
+</resources>

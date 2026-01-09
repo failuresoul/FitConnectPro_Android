@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FitConnect Pro</string>
+    <string name="app_tagline">A Premium GYM Management System</string>
+    <string name="app_slogan">Empowering Fitness Excellence</string>
+    <string name="app_logo">App Logo</string>
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="login_subtitle">Please login to continue</string>
+    <string name="select_user_type">Select User Type:</string>
+    
+    <!-- User Roles -->
+    <string name="role_admin">Admin</string>
+    <string name="role_trainer">Trainer</string>
+    <string name="role_member">Member</string>
+    
+    <!-- Common Strings -->
+    <string name="login">LOGIN</string>
+    <string name="logout">Logout</string>
+    <string name="register">Register</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="submit">Submit</string>
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="confirm">Confirm</string>
+    <string name="search">Search</string>
+    
+    <string name="username">Username</string>
+    <string name="enter_username">Enter your username</string>
+    <string name="password">Password</string>
+    <string name="enter_password">Enter your password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    
+    <!-- Navigation Drawer Strings -->
+    <string name="open_drawer">Open navigation drawer</string>
+    <string name="close_drawer">Close navigation drawer</string>
+
+    <!-- Admin Strings -->
+    <string name="admin">Admin</string>
+    <string name="member_management">Member Management</string>
+    <string name="trainer_management">Trainer Management</string>
+    <string name="salary_management">Salary Management</string>
+    <string name="applications">Applications</string>
+    <string name="assign_trainer">Assign Trainer</string>
+</resources>
