@@ -43,6 +43,12 @@
                 android:value=".activities.admin.AdminDashboardActivity" />
         </activity>
 
+        <!-- Member Management Activity -->
+        <activity
+            android:name=".activities.admin.MemberManagementActivity"
+            android:label="@string/member_management"
+            android:theme="@style/Theme.FitConnectPro.NoActionBar"
+            android:exported="false" />
 
     </application>
 

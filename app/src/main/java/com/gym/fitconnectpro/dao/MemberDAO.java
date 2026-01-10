@@ -28,11 +28,6 @@ public class MemberDAO {
     }
 
     /**
-     * Register a new member
-     * @param member Member object with all details
-     * @return "SUCCESS" if successful, error message otherwise
-     */
-    /**
      * Register a new member and record initial payment
      * @param member Member object with all details
      * @return "SUCCESS" if successful, error message otherwise
@@ -121,9 +116,6 @@ public class MemberDAO {
 
     /**
      * Check if username already exists
-     * @param db SQLiteDatabase instance
-     * @param username Username to check
-     * @return true if exists, false otherwise
      */
     private boolean isUsernameExists(SQLiteDatabase db, String username) {
         Cursor cursor = null;
@@ -142,13 +134,11 @@ public class MemberDAO {
             if (cursor != null) {
                 cursor.close();
             }
-            // Do NOT close db here, as it's passed from caller
         }
     }
 
     /**
      * Get all members
-     * @return List of all members
      */
     public List<Member> getAllMembers() {
         List<Member> members = new ArrayList<>();
@@ -161,26 +151,7 @@ public class MemberDAO {
 
             if (cursor != null && cursor.moveToFirst()) {
                 do {
-                    Member member = new Member();
-                    member.setMemberId(cursor.getInt(cursor.getColumnIndexOrThrow("member_id")));
-                    member.setFullName(cursor.getString(cursor.getColumnIndexOrThrow("full_name")));
-                    member.setEmail(cursor.getString(cursor.getColumnIndexOrThrow("email")));
-                    member.setPhone(cursor.getString(cursor.getColumnIndexOrThrow("phone")));
-                    member.setDateOfBirth(cursor.getString(cursor.getColumnIndexOrThrow("date_of_birth")));
-                    member.setGender(cursor.getString(cursor.getColumnIndexOrThrow("gender")));
-                    member.setHeight(cursor.getDouble(cursor.getColumnIndexOrThrow("height")));
-                    member.setWeight(cursor.getDouble(cursor.getColumnIndexOrThrow("weight")));
-                    member.setMembershipType(cursor.getString(cursor.getColumnIndexOrThrow("membership_type")));
-                    member.setMembershipFee(cursor.getDouble(cursor.getColumnIndexOrThrow("membership_fee")));
-                    member.setMembershipStartDate(cursor.getString(cursor.getColumnIndexOrThrow("membership_start_date")));
-                    member.setMembershipEndDate(cursor.getString(cursor.getColumnIndexOrThrow("membership_end_date")));
-                    member.setMedicalNotes(cursor.getString(cursor.getColumnIndexOrThrow("medical_notes")));
-                    member.setEmergencyContact(cursor.getString(cursor.getColumnIndexOrThrow("emergency_contact")));
-                    member.setUsername(cursor.getString(cursor.getColumnIndexOrThrow("username")));
-                    member.setStatus(cursor.getString(cursor.getColumnIndexOrThrow("status")));
-                    member.setRegistrationDate(cursor.getString(cursor.getColumnIndexOrThrow("registration_date")));
-
-                    members.add(member);
+                    members.add(cursorToMember(cursor));
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
@@ -198,9 +169,92 @@ public class MemberDAO {
     }
 
     /**
-     * Update member information
-     * @param member Member object with updated details
-     * @return true if update successful, false otherwise
+     * Search members by keyword
+     */
+    public List<Member> searchMembers(String keyword) {
+        List<Member> memberList = new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            String searchPattern = "%" + keyword + "%";
+            String selection = "full_name LIKE ? OR email LIKE ? OR phone LIKE ? OR username LIKE ?";
+            String[] selectionArgs = {searchPattern, searchPattern, searchPattern, searchPattern};
+
+            cursor = db.query("members", null, selection, selectionArgs, null, null, "registration_date DESC");
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    memberList.add(cursorToMember(cursor));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error searching members: " + e.getMessage());
+        } finally {
+            if (cursor != null) cursor.close();
+            if (db != null && db.isOpen()) db.close();
+        }
+        return memberList;
+    }
+
+    /**
+     * Filter members by status
+     */
+    public List<Member> filterMembersByStatus(String status) {
+        List<Member> memberList = new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            String selection = null;
+            String[] selectionArgs = null;
+
+            if (!"All".equals(status)) {
+                selection = "status = ?";
+                selectionArgs = new String[]{status};
+            }
+
+            cursor = db.query("members", null, selection, selectionArgs, null, null, "registration_date DESC");
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    memberList.add(cursorToMember(cursor));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error filtering members: " + e.getMessage());
+        } finally {
+            if (cursor != null) cursor.close();
+            if (db != null && db.isOpen()) db.close();
+        }
+        return memberList;
+    }
+
+    /**
+     * Update member status
+     */
+    public boolean updateMemberStatus(int memberId, String status) {
+        SQLiteDatabase db = null;
+        try {
+            db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("status", status);
+
+            int rowsAffected = db.update("members", values,
+                    "member_id = ?", new String[]{String.valueOf(memberId)});
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating member status: " + e.getMessage());
+            return false;
+        } finally {
+            if (db != null && db.isOpen()) db.close();
+        }
+    }
+
+    /**
+     * Update member
      */
     public boolean updateMember(Member member) {
         SQLiteDatabase db = null;
@@ -239,8 +293,6 @@ public class MemberDAO {
 
     /**
      * Delete member
-     * @param memberId Member ID to delete
-     * @return true if deletion successful, false otherwise
      */
     public boolean deleteMember(int memberId) {
         SQLiteDatabase db = null;
@@ -257,5 +309,38 @@ public class MemberDAO {
                 db.close();
             }
         }
+    }
+
+    // Helper method to convert cursor to Member object
+    private Member cursorToMember(Cursor cursor) {
+        Member member = new Member();
+        member.setMemberId(cursor.getInt(cursor.getColumnIndexOrThrow("member_id")));
+        member.setFullName(cursor.getString(cursor.getColumnIndexOrThrow("full_name")));
+        member.setEmail(cursor.getString(cursor.getColumnIndexOrThrow("email")));
+        member.setPhone(cursor.getString(cursor.getColumnIndexOrThrow("phone")));
+        member.setDateOfBirth(cursor.getString(cursor.getColumnIndexOrThrow("date_of_birth")));
+        member.setGender(cursor.getString(cursor.getColumnIndexOrThrow("gender")));
+        member.setHeight(cursor.getDouble(cursor.getColumnIndexOrThrow("height")));
+        member.setWeight(cursor.getDouble(cursor.getColumnIndexOrThrow("weight")));
+        member.setMembershipType(cursor.getString(cursor.getColumnIndexOrThrow("membership_type")));
+        member.setMembershipFee(cursor.getDouble(cursor.getColumnIndexOrThrow("membership_fee")));
+        member.setMembershipStartDate(cursor.getString(cursor.getColumnIndexOrThrow("membership_start_date")));
+        member.setMembershipEndDate(cursor.getString(cursor.getColumnIndexOrThrow("membership_end_date")));
+        member.setMedicalNotes(cursor.getString(cursor.getColumnIndexOrThrow("medical_notes")));
+        member.setEmergencyContact(cursor.getString(cursor.getColumnIndexOrThrow("emergency_contact")));
+        member.setUsername(cursor.getString(cursor.getColumnIndexOrThrow("username")));
+        member.setPassword(cursor.getString(cursor.getColumnIndexOrThrow("password"))); // Set password if needed, but usually not for list
+        member.setStatus(cursor.getString(cursor.getColumnIndexOrThrow("status")));
+        
+        // Correctly handling registration_date
+        try {
+             String regDate = cursor.getString(cursor.getColumnIndexOrThrow("registration_date"));
+             member.setCreatedAt(regDate);
+        } catch (IllegalArgumentException e) {
+             // Column might not exist in old schema versions, handle gracefully
+             Log.w(TAG, "registration_date column not found");
+        }
+        
+        return member;
     }
 }

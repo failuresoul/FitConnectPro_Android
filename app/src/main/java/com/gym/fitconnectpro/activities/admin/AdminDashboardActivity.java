@@ -23,13 +23,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import com.gym.fitconnectpro.R;
 import com.gym.fitconnectpro.activities.LoginActivity;
-import com.gym.fitconnectpro.activities.admin.MemberRegistrationActivity;
-import com.gym.fitconnectpro.fragments.admin.ApplicationsFragment;
 import com.gym.fitconnectpro.fragments.admin.DashboardHomeFragment;
-import com.gym.fitconnectpro.fragments.admin.MemberManagementFragment;
-import com.gym.fitconnectpro.fragments.admin.ReportsFragment;
-import com.gym.fitconnectpro.fragments.admin.SalaryManagementFragment;
-import com.gym.fitconnectpro.fragments.admin.TrainerManagementFragment;
 import com.gym.fitconnectpro.services.Session;
 
 public class AdminDashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -96,8 +90,7 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
             String username = session.getUsername();
             if (username != null) {
                 headerAdminName.setText(username);
-                // In a real app, email would also be in session or fetched
-                headerAdminEmail.setText(username + "@fitconnectpro.com"); // Placeholder
+                headerAdminEmail.setText(username + "@fitconnectpro.com");
             }
         }
 
@@ -136,13 +129,15 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
             loadFragment(new DashboardHomeFragment());
             toolbarTitle.setText("Admin Dashboard");
         } else if (id == R.id.nav_members) {
-            loadMemberManagement();
+            // Launch Member Management Activity
+            Intent intent = new Intent(this, MemberManagementActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_trainers) {
-            loadTrainerManagement();
+            Toast.makeText(this, "Trainer Management - Coming Soon", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_salary) {
-            loadSalaryManagement();
+            Toast.makeText(this, "Salary Management - Coming Soon", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_reports) {
-            loadReports();
+            Toast.makeText(this, "Reports - Coming Soon", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_logout) {
             showLogoutDialog();
         }
@@ -156,26 +151,6 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.content_area, fragment);
         transaction.commit();
-    }
-
-    public void loadMemberManagement() {
-        loadFragment(new MemberManagementFragment());
-        toolbarTitle.setText("Member Management");
-    }
-
-    public void loadTrainerManagement() {
-        loadFragment(new TrainerManagementFragment());
-        toolbarTitle.setText("Trainer Management");
-    }
-
-    public void loadSalaryManagement() {
-        loadFragment(new SalaryManagementFragment());
-        toolbarTitle.setText("Salary Management");
-    }
-
-    public void loadReports() {
-        loadFragment(new ReportsFragment());
-        toolbarTitle.setText("Reports");
     }
 
     private void showLogoutDialog() {

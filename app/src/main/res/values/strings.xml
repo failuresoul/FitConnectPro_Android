@@ -80,4 +80,21 @@
     <string name="password_label">Password:</string>
     <string name="username_placeholder">Will be auto-generated</string>
     <string name="password_placeholder">Will be auto-generated</string>
+
+    <!-- Member Management -->
+    <string name="member_management">Member Management</string>
+    <string name="search_members">Search members...</string>
+    <string name="filter_status">Filter by Status</string>
+    <string name="all">All</string>
+    <string name="active">Active</string>
+    <string name="suspended">Suspended</string>
+    <string name="expired">Expired</string>
+    <string name="total_members">Total Members: 0</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="page_1">Page 1 of 1</string>
+    <string name="edit">Edit</string>
+    <string name="suspend">Suspend</string>
+    <string name="delete">Delete</string>
+    <string name="activate">Activate</string>
 </resources>
