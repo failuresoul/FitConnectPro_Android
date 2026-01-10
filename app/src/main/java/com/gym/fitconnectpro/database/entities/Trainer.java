@@ -14,12 +14,19 @@ public class Trainer {
     private String password;
     private String status;
     private String createdAt;
+    
+    // Transient field for UI
+    private int assignedClientsCount;
 
     public Trainer() {
     }
 
     public int getTrainerId() { return trainerId; }
     public void setTrainerId(int trainerId) { this.trainerId = trainerId; }
+
+    // Compatibility aliases
+    public int getId() { return trainerId; }
+    public void setId(int id) { this.trainerId = id; }
 
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
@@ -56,6 +63,9 @@ public class Trainer {
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    
+    public int getAssignedClientsCount() { return assignedClientsCount; }
+    public void setAssignedClientsCount(int assignedClientsCount) { this.assignedClientsCount = assignedClientsCount; }
 
     // Compatibility methods for user's Activity code
     public void setSpecializations(String s) { this.specialization = s; }

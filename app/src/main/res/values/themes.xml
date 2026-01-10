@@ -18,4 +18,7 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">false</item>
     </style>
+
+    <style name="Theme.FitConnectPro.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
+    <style name="Theme.FitConnectPro.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
 </resources>

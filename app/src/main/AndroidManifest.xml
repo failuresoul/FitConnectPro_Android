@@ -62,6 +62,18 @@
                 android:value=".activities.admin.AdminDashboardActivity" />
         </activity>
 
+        <!-- Trainer Management Activity -->
+        <activity
+            android:name=".activities.admin.TrainerManagementActivity"
+            android:label="@string/trainer_management"
+            android:theme="@style/Theme.FitConnectPro.NoActionBar"
+            android:exported="false"
+            android:parentActivityName=".activities.admin.AdminDashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.admin.AdminDashboardActivity" />
+        </activity>
+
     </application>
 
 </manifest>

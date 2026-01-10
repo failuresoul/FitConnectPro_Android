@@ -101,6 +101,8 @@
     <string name="suspend">Suspend</string>
     <string name="delete">Delete</string>
     <string name="activate">Activate</string>
+    
+    <string name="trainer_management">Trainer Management</string>
 
     <!-- Trainer Registration -->
     <string name="trainer_registration">Trainer Registration</string>

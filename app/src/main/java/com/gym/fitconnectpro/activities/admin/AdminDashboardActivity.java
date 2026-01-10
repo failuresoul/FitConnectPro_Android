@@ -127,7 +127,8 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
             Intent intent = new Intent(this, MemberManagementActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_trainers) {
-            Toast.makeText(this, "Trainer Management - Coming Soon", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, TrainerManagementActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_salary) {
             Toast.makeText(this, "Salary Management - Coming Soon", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_reports) {

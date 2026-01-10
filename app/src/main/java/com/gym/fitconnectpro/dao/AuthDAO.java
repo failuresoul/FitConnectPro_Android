@@ -9,7 +9,7 @@ import android.util.Log;
 import com.gym.fitconnectpro.database.DatabaseHelper;
 import com.gym.fitconnectpro.models.User;
 import com.gym.fitconnectpro.models.Member;
-import com.gym.fitconnectpro.models.Trainer;
+import com.gym.fitconnectpro.database.entities.Trainer;
 import com.gym.fitconnectpro.utils.PasswordUtil;
 import com.gym.fitconnectpro.utils.DateUtil;
 
