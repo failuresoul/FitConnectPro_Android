@@ -20,6 +20,7 @@ import com.gym.fitconnectpro.R;
 import com.gym.fitconnectpro.activities.admin.AdminDashboardActivity;
 import com.gym.fitconnectpro.dao.AuthDAO;
 import com.gym.fitconnectpro.models.User;
+import com.gym.fitconnectpro.database.entities.Trainer;
 import com.gym.fitconnectpro.services.Session;
 import com.gym.fitconnectpro.utils.ValidationUtil;
 
@@ -192,12 +193,18 @@ public class LoginActivity extends AppCompatActivity {
                     session.setCurrentUser(admin);
                     success = true;
                 }
+            } else if ("TRAINER".equals(userType)) {
+                Trainer trainer = authDAO.authenticateTrainer(username, password);
+                if (trainer != null) {
+                    session.setCurrentTrainer(trainer);
+                    success = true;
+                }
             } else {
-                // Show message that only admin can login
+                // Show message that only admin and trainer can login
                 runOnUiThread(() -> {
                     btnLogin.setEnabled(true);
                     btnLogin.setText("LOGIN");
-                    Toast.makeText(this, "Only Admin can login at this time", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Only Admin and Trainer can login at this time", Toast.LENGTH_LONG).show();
                 });
                 return;
             }
@@ -264,6 +271,10 @@ public class LoginActivity extends AppCompatActivity {
             Intent intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
             startActivity(intent);
             finish(); // Prevent going back to login screen
+        } else if ("TRAINER".equals(userType)) {
+            Intent intent = new Intent(LoginActivity.this, com.gym.fitconnectpro.activities.trainer.TrainerDashboardActivity.class);
+            startActivity(intent);
+            finish();
         } else {
             Toast.makeText(this, "Dashboard not available for " + userType, Toast.LENGTH_SHORT).show();
         }

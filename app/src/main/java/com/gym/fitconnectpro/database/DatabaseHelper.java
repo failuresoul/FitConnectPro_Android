@@ -18,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "FitConnectPro.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -30,6 +30,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_ATTENDANCE = "attendance";
     private static final String TABLE_APPLICATIONS = "applications";
     private static final String TABLE_SALARIES = "salaries";
+    private static final String TABLE_MESSAGES = "messages";
+    private static final String TABLE_WORKOUT_PLANS = "workout_plans";
+
+    // ... (Keep existing column constants)
+
+    // Messages Table Columns
+    private static final String KEY_SENDER_ID = "sender_id";
+    private static final String KEY_RECEIVER_ID = "receiver_id";
+    private static final String KEY_CONTENT = "content";
+    private static final String KEY_IS_READ = "is_read";
+    private static final String KEY_TIMESTAMP = "timestamp";
+    
+    // Workout Plans Table Columns
+    private static final String KEY_PLAN_NAME = "plan_name";
+
+
 
     // Common Column Names
     private static final String KEY_ID = "id";
@@ -131,6 +147,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("PRAGMA foreign_keys=OFF;");
 
             // Drop all tables
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORKOUT_PLANS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGES);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_APPLICATIONS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_ATTENDANCE);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENTS);
@@ -300,6 +318,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY(" + KEY_PROCESSED_BY + ") REFERENCES " + TABLE_USERS + "(" + KEY_ID + ")"
                 + ")";
         db.execSQL(CREATE_SALARIES_TABLE);
+
+        // Messages Table
+        String CREATE_MESSAGES_TABLE = "CREATE TABLE " + TABLE_MESSAGES + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_SENDER_ID + " INTEGER NOT NULL,"
+                + KEY_RECEIVER_ID + " INTEGER NOT NULL,"
+                + KEY_CONTENT + " TEXT,"
+                + KEY_IS_READ + " INTEGER DEFAULT 0,"
+                + KEY_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(" + KEY_SENDER_ID + ") REFERENCES " + TABLE_USERS + "(" + KEY_ID + "),"
+                + "FOREIGN KEY(" + KEY_RECEIVER_ID + ") REFERENCES " + TABLE_USERS + "(" + KEY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_MESSAGES_TABLE);
+
+        // Workout Plans Table
+        String CREATE_WORKOUT_PLANS_TABLE = "CREATE TABLE " + TABLE_WORKOUT_PLANS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_TRAINER_ID + " INTEGER NOT NULL,"
+                + KEY_MEMBER_ID + " INTEGER NOT NULL,"
+                + KEY_PLAN_NAME + " TEXT NOT NULL,"
+                + KEY_START_DATE + " DATE NOT NULL,"
+                + KEY_END_DATE + " DATE NOT NULL,"
+                + KEY_STATUS + " TEXT DEFAULT 'PENDING' CHECK(" + KEY_STATUS + " IN ('PENDING', 'ACTIVE', 'COMPLETED')),"
+                + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + KEY_UPDATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(" + KEY_TRAINER_ID + ") REFERENCES " + TABLE_TRAINERS + "(" + KEY_ID + ") ON DELETE CASCADE,"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id) ON DELETE CASCADE"
+                + ")";
+        db.execSQL(CREATE_WORKOUT_PLANS_TABLE);
 
         Log.d(TAG, "All tables created successfully");
     }
