@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            
+            <TextView
+                android:id="@+id/tvTrainerName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Trainer Name"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"/>
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ACTIVE"
+                android:background="#4CAF50"
+                android:textColor="@android:color/white"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:textSize="12sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTrainerId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ID: 101"
+            android:textColor="#757575"
+            android:textSize="12sp"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Spec: "
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tvSpecialization"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bodybuilding"/>
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Exp: "
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tvExperience"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5 Years"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Salary: "
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tvSalary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$3000"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Clients: "
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tvClientCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E0E0E0"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <Button
+                android:id="@+id/btnViewClients"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Clients"
+                android:textSize="12sp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Edit"
+                android:textSize="12sp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Delete"
+                android:textColor="#F44336"
+                android:textSize="12sp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

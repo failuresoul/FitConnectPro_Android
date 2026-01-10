@@ -343,4 +343,130 @@ public class MemberDAO {
         
         return member;
     }
+
+    /**
+     * Get the assigned trainer ID for a member
+     * @param memberId Member ID
+     * @return Trainer ID if assigned, null otherwise
+     */
+    public Integer getAssignedTrainerId(int memberId) {
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            String query = "SELECT trainer_id FROM trainer_assignments " +
+                          "WHERE member_id = ? AND status = 'ACTIVE' " +
+                          "ORDER BY assigned_date DESC LIMIT 1";
+            cursor = db.rawQuery(query, new String[]{String.valueOf(memberId)});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getInt(0);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting assigned trainer", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get list of members without active trainer assignments
+     * @return List of unassigned members
+     */
+    public List<Member> getUnassignedMembers() {
+        List<Member> members = new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            
+            // Get all active members first
+            String selection = "status = ?";
+            String[] selectionArgs = {"ACTIVE"};
+            
+            cursor = db.query("members", null, selection, selectionArgs, 
+                            null, null, "full_name ASC");
+            
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    Member member = cursorToMember(cursor);
+                    
+                    // Check if member has active assignment
+                    Integer trainerId = getAssignedTrainerId(member.getMemberId());
+                    if (trainerId == null) {
+                        members.add(member);
+                    }
+                } while (cursor.moveToNext());
+            }
+            
+            Log.d(TAG, "Retrieved " + members.size() + " unassigned members");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting unassigned members: " + e.getMessage(), e);
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) cursor.close();
+            if (db != null && db.isOpen()) db.close();
+        }
+        
+        return members;
+    }
+
+    /**
+     * Get all active members
+     * @return List of all active members
+     */
+    public List<Member> getAllActiveMembers() {
+        List<Member> members = new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            
+            // First, let's get ALL members to see what we have
+            cursor = db.query("members", null, null, null, null, null, "full_name ASC");
+            
+            Log.d(TAG, "Query executed, total cursor count: " + (cursor != null ? cursor.getCount() : "null"));
+            
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    try {
+                        Member member = cursorToMember(cursor);
+                        
+                        // Log the status value to see what's actually in the database
+                        String status = member.getStatus();
+                        Log.d(TAG, "Member: " + member.getFullName() + ", Status: '" + status + "'");
+                        
+                        // Check for ACTIVE status (case-insensitive)
+                        if (status != null && status.equalsIgnoreCase("ACTIVE")) {
+                            members.add(member);
+                            Log.d(TAG, "Added ACTIVE member: " + member.getFullName());
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error processing member row: " + e.getMessage(), e);
+                    }
+                } while (cursor.moveToNext());
+            } else {
+                Log.w(TAG, "No members found in database or cursor is null");
+            }
+            
+            Log.d(TAG, "Retrieved " + members.size() + " active members out of " + 
+                  (cursor != null ? cursor.getCount() : 0) + " total");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting active members: " + e.getMessage(), e);
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) cursor.close();
+            if (db != null && db.isOpen()) db.close();
+        }
+        
+        return members;
+    }
 }
+

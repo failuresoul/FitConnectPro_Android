@@ -124,4 +124,15 @@
     <string name="max_clients">Max Clients</string>
     <string name="account_status">Account Status</string>
     <string name="register_trainer">Register Trainer</string>
+
+    <!-- Assign Trainer -->
+    <string name="assign_trainer_title">Assign Trainer to Member</string>
+    <string name="select_member">Select Member</string>
+    <string name="select_trainer">Select Trainer</string>
+    <string name="assignment_date">Assignment Start Date</string>
+    <string name="assign">Assign</string>
+    <string name="assignment_success">Trainer assigned successfully</string>
+    <string name="assignment_failed">Failed to assign trainer</string>
+    <string name="trainer_at_capacity">Trainer has reached maximum capacity</string>
+    <string name="member_already_assigned">Member is already assigned to this trainer</string>
 </resources>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvTrainerName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Trainer Name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tvStatus"/>
+
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="January 2026"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTrainerName"
+            android:layout_marginTop="4dp"/>
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PENDING"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            android:background="@drawable/bg_spinner"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <LinearLayout
+            android:id="@+id/layoutFinancials"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@+id/tvDate">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="4">
+                
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Base"
+                    android:textSize="12sp"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Bonuses"
+                    android:textSize="12sp"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Deductions"
+                    android:textSize="12sp"/>
+                 <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Net"
+                    android:textStyle="bold"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="4">
+
+                <TextView
+                    android:id="@+id/tvBaseSalary"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="$1000"
+                    android:textColor="@android:color/black"/>
+                <TextView
+                    android:id="@+id/tvBonus"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="$0"
+                    android:textColor="@android:color/holo_green_dark"/>
+                <TextView
+                    android:id="@+id/tvDeductions"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="$0"
+                    android:textColor="@android:color/holo_red_dark"/>
+                <TextView
+                    android:id="@+id/tvNetSalary"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="$1000"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"/>
+            </LinearLayout>
+        </LinearLayout>
+        
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:alpha="0.2"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@+id/layoutFinancials"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/divider">
+
+            <Button
+                android:id="@+id/btnViewDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Details"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Edit"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+
+            <Button
+                android:id="@+id/btnPay"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Pay"
+                android:textSize="12sp"
+                android:backgroundTint="@android:color/holo_green_dark"/>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

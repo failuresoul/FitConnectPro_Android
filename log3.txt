@@ -1,0 +1,76 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:dataBindingGenBaseClassesDebug UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+
+> Task :app:compileDebugJavaWithJavac FAILED
+E:\FitConnectPro\app\src\main\java\com\gym\fitconnectpro\services\Session.java:73: error: cannot find symbol
+        editor.putInt(KEY_USER_ID, trainer.getId());
+                                          ^
+  symbol:   method getId()
+  location: variable trainer of type Trainer
+E:\FitConnectPro\app\src\main\java\com\gym\fitconnectpro\dao\AuthDAO.java:163: error: cannot find symbol
+                        updateLastLogin(db, trainer.getId(), TABLE_TRAINERS);
+                                                   ^
+  symbol:   method getId()
+  location: variable trainer of type Trainer
+E:\FitConnectPro\app\src\main\java\com\gym\fitconnectpro\dao\AuthDAO.java:468: error: cannot find symbol
+        trainer.setId(trainerCursor.getInt(idIndex));
+               ^
+  symbol:   method setId(int)
+  location: variable trainer of type Trainer
+3 errors
+
+[Incubating] Problems report is available at: file:///E:/FitConnectPro/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugJavaWithJavac'.
+> Compilation failed; see the compiler output below.
+  E:\FitConnectPro\app\src\main\java\com\gym\fitconnectpro\services\Session.java:73: error: cannot find symbol
+          editor.putInt(KEY_USER_ID, trainer.getId());
+                                            ^
+    symbol:   method getId()
+    location: variable trainer of type Trainer
+  E:\FitConnectPro\app\src\main\java\com\gym\fitconnectpro\dao\AuthDAO.java:163: error: cannot find symbol
+                          updateLastLogin(db, trainer.getId(), TABLE_TRAINERS);
+                                                     ^
+    symbol:   method getId()
+    location: variable trainer of type Trainer
+  E:\FitConnectPro\app\src\main\java\com\gym\fitconnectpro\dao\AuthDAO.java:468: error: cannot find symbol
+          trainer.setId(trainerCursor.getInt(idIndex));
+                 ^
+    symbol:   method setId(int)
+    location: variable trainer of type Trainer
+  3 errors
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 2s
+19 actionable tasks: 1 executed, 18 up-to-date

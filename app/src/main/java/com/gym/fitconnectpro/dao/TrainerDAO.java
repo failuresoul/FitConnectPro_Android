@@ -13,6 +13,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -299,4 +300,167 @@ public class TrainerDAO {
         
         return trainer;
     }
+
+    /**
+     * Get list of available trainers (all active trainers)
+     * @return List of trainers
+     */
+    public List<Trainer> getAvailableTrainers() {
+        List<Trainer> trainers = new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            
+            String query = "SELECT t.*, u.username, u.email, u.phone " +
+                          "FROM trainers t " +
+                          "INNER JOIN users u ON t.user_id = u.id " +
+                          "WHERE t.status = 'ACTIVE' " +
+                          "ORDER BY t.full_name ASC";
+            
+            cursor = db.rawQuery(query, null);
+            
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    Trainer trainer = cursorToTrainer(cursor);
+                    // Get current client count
+                    int clientCount = getTrainerCurrentClientCount(trainer.getTrainerId());
+                    trainer.setAssignedClientsCount(clientCount);
+                    trainers.add(trainer);
+                } while (cursor.moveToNext());
+            }
+            
+            Log.d(TAG, "Retrieved " + trainers.size() + " available trainers");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting available trainers", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        
+        return trainers;
+    }
+
+    /**
+     * Get current active client count for a trainer
+     * @param trainerId Trainer ID
+     * @return Number of active assignments
+     */
+    public int getTrainerCurrentClientCount(int trainerId) {
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        int count = 0;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            String query = "SELECT COUNT(*) FROM trainer_assignments " +
+                          "WHERE trainer_id = ? AND status = 'ACTIVE'";
+            cursor = db.rawQuery(query, new String[]{String.valueOf(trainerId)});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                count = cursor.getInt(0);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting trainer client count", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        
+        return count;
+    }
+
+    /**
+     * Assign a trainer to a member
+     * @param trainerId Trainer ID
+     * @param memberId Member ID
+     * @param assignedDate Assignment start date
+     * @return true if successful, false otherwise
+     */
+    public boolean assignTrainerToMember(int trainerId, int memberId, String assignedDate) {
+        SQLiteDatabase db = null;
+        
+        try {
+            db = dbHelper.getWritableDatabase();
+            db.beginTransaction();
+            
+            // Check if member already has an active assignment
+            Cursor existingCursor = db.rawQuery(
+                "SELECT id FROM trainer_assignments WHERE member_id = ? AND status = 'ACTIVE'",
+                new String[]{String.valueOf(memberId)}
+            );
+            
+            if (existingCursor != null && existingCursor.moveToFirst()) {
+                // Update existing assignment to COMPLETED
+                ContentValues updateValues = new ContentValues();
+                updateValues.put("status", "COMPLETED");
+                updateValues.put("updated_at", dateFormat.format(new Date()));
+                
+                db.update("trainer_assignments", updateValues, 
+                         "member_id = ? AND status = 'ACTIVE'", 
+                         new String[]{String.valueOf(memberId)});
+                
+                Log.d(TAG, "Completed previous assignment for member: " + memberId);
+            }
+            if (existingCursor != null) existingCursor.close();
+            
+            // Create new assignment
+            ContentValues values = new ContentValues();
+            values.put("member_id", memberId);
+            values.put("trainer_id", trainerId);
+            values.put("assigned_date", assignedDate);
+            values.put("status", "ACTIVE");
+            values.put("created_at", dateFormat.format(new Date()));
+            values.put("updated_at", dateFormat.format(new Date()));
+            
+            long result = db.insert("trainer_assignments", null, values);
+            
+            if (result != -1) {
+                db.setTransactionSuccessful();
+                Log.d(TAG, "Successfully assigned trainer " + trainerId + " to member " + memberId);
+                return true;
+            }
+            
+            return false;
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Error assigning trainer to member", e);
+            return false;
+        } finally {
+            if (db != null) {
+                db.endTransaction();
+            }
+        }
+    }
+
+    /**
+     * Get list of members assigned to a trainer
+     * @param trainerId Trainer ID
+     * @return List of member IDs
+     */
+    public List<Integer> getAssignedMembersForTrainer(int trainerId) {
+        List<Integer> memberIds = new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            String query = "SELECT member_id FROM trainer_assignments " +
+                          "WHERE trainer_id = ? AND status = 'ACTIVE'";
+            cursor = db.rawQuery(query, new String[]{String.valueOf(trainerId)});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    memberIds.add(cursor.getInt(0));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting assigned members", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        
+        return memberIds;
+    }
 }
+

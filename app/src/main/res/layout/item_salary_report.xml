@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:weightSum="3">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.5"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvTrainerName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trainer Name"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"/>
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2023-10-25"
+                android:textSize="12sp"
+                android:textColor="@android:color/darker_gray"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvNetSalary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="$1500.00"
+            android:textStyle="bold"
+            android:textColor="@android:color/holo_green_dark"
+            android:gravity="end"/>
+            
+        <TextView
+            android:id="@+id/tvStatus"
+             android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="PAID"
+            android:textSize="10sp"
+            android:gravity="end"
+            android:layout_gravity="center_vertical"
+            android:textColor="@android:color/holo_blue_dark"/>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/Theme.FitConnectPro.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:title="Trainer Management"
+            app:popupTheme="@style/Theme.FitConnectPro.PopupOverlay" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/etSearchTrainer"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:hint="Search by name, spec..."
+                android:background="@drawable/bg_edit_text"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginEnd="8dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerStatusFilter"
+                android:layout_width="120dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_spinner"
+                android:spinnerMode="dropdown"/>
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTrainers"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:paddingBottom="80dp"/> <!-- Padding for FAB or button -->
+
+        <Button
+            android:id="@+id/btnAddNewTrainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add New Trainer"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="@android:color/white"
+            android:padding="12dp"
+            android:layout_marginTop="8dp"/>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

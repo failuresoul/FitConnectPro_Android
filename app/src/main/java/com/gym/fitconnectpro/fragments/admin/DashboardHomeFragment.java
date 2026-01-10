@@ -18,7 +18,7 @@ import com.gym.fitconnectpro.dao.StatisticsDAO;
 
 public class DashboardHomeFragment extends Fragment {
 
-    private Button btnAddMember, btnAddTrainer;
+    private Button btnAddMember, btnAddTrainer, btnAssignTrainer;
     private StatisticsDAO statisticsDAO;
 
     @Nullable
@@ -29,6 +29,7 @@ public class DashboardHomeFragment extends Fragment {
 
         btnAddMember = view.findViewById(R.id.btnAddMember);
         btnAddTrainer = view.findViewById(R.id.btnAddTrainer);
+        btnAssignTrainer = view.findViewById(R.id.btnAssignTrainer);
 
         setupListeners();
 
@@ -52,6 +53,15 @@ public class DashboardHomeFragment extends Fragment {
         btnAddTrainer.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), TrainerRegistrationActivity.class);
             startActivity(intent);
+        });
+
+        btnAssignTrainer.setOnClickListener(v -> {
+            AssignTrainerDialogFragment dialog = new AssignTrainerDialogFragment();
+            dialog.setOnAssignmentCompleteListener(() -> {
+                // Refresh dashboard stats after assignment
+                loadDashboardStats();
+            });
+            dialog.show(getParentFragmentManager(), "AssignTrainerDialog");
         });
     }
 

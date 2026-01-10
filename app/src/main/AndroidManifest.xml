@@ -74,6 +74,30 @@
                 android:value=".activities.admin.AdminDashboardActivity" />
         </activity>
 
+        <!-- Salary Management Activity -->
+        <activity
+            android:name=".activities.admin.SalaryManagementActivity"
+            android:label="Salary Management"
+            android:theme="@style/Theme.FitConnectPro"
+            android:exported="false"
+            android:parentActivityName=".activities.admin.AdminDashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.admin.AdminDashboardActivity" />
+        </activity>
+
+        <!-- Salary Reports Activity -->
+        <activity
+            android:name=".activities.admin.SalaryReportsActivity"
+            android:label="Salary Reports"
+            android:theme="@style/Theme.FitConnectPro"
+            android:exported="false"
+            android:parentActivityName=".activities.admin.AdminDashboardActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.admin.AdminDashboardActivity" />
+        </activity>
+
     </application>
 
 </manifest>

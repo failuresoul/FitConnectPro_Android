@@ -18,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "FitConnectPro.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -29,6 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_PAYMENTS = "payments";
     private static final String TABLE_ATTENDANCE = "attendance";
     private static final String TABLE_APPLICATIONS = "applications";
+    private static final String TABLE_SALARIES = "salaries";
 
     // Common Column Names
     private static final String KEY_ID = "id";
@@ -84,6 +85,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_DESCRIPTION = "description";
     private static final String KEY_APPLICATION_STATUS = "application_status";
 
+    // Salaries Table Columns
+    private static final String KEY_MONTH = "month";
+    private static final String KEY_YEAR = "year";
+    private static final String KEY_BASE_SALARY = "base_salary";
+    private static final String KEY_BONUS = "bonus";
+    private static final String KEY_DEDUCTIONS = "deductions";
+    private static final String KEY_NET_SALARY = "net_salary";
+    private static final String KEY_PROCESSED_BY = "processed_by";
+
     // Private constructor for Singleton
     private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -128,6 +138,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEMBERSHIPS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRAINERS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEMBERS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_SALARIES);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
 
             onCreate(db);
@@ -270,6 +281,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + ")";
         db.execSQL(CREATE_APPLICATIONS_TABLE);
 
+        // Salaries Table
+        String CREATE_SALARIES_TABLE = "CREATE TABLE " + TABLE_SALARIES + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_TRAINER_ID + " INTEGER NOT NULL,"
+                + KEY_MONTH + " INTEGER NOT NULL,"
+                + KEY_YEAR + " INTEGER NOT NULL,"
+                + KEY_BASE_SALARY + " REAL DEFAULT 0.0,"
+                + KEY_BONUS + " REAL DEFAULT 0.0,"
+                + KEY_DEDUCTIONS + " REAL DEFAULT 0.0,"
+                + KEY_NET_SALARY + " REAL DEFAULT 0.0,"
+                + KEY_STATUS + " TEXT DEFAULT 'PENDING' CHECK(" + KEY_STATUS + " IN ('PENDING', 'PAID')),"
+                + KEY_PAYMENT_DATE + " DATE,"
+                + KEY_PROCESSED_BY + " INTEGER,"
+                + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + KEY_UPDATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(" + KEY_TRAINER_ID + ") REFERENCES " + TABLE_TRAINERS + "(" + KEY_ID + ") ON DELETE CASCADE,"
+                + "FOREIGN KEY(" + KEY_PROCESSED_BY + ") REFERENCES " + TABLE_USERS + "(" + KEY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_SALARIES_TABLE);
+
         Log.d(TAG, "All tables created successfully");
     }
 
@@ -356,6 +387,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.delete(TABLE_TRAINER_ASSIGNMENTS, null, null);
             db.delete(TABLE_MEMBERSHIPS, null, null);
             db.delete(TABLE_TRAINERS, null, null);
+            db.delete(TABLE_SALARIES, null, null);
             db.delete(TABLE_MEMBERS, null, null);
             db.delete(TABLE_USERS, null, null);
 

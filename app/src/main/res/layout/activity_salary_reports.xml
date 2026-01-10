@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".activities.admin.SalaryReportsActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:titleTextColor="@android:color/white"
+            app:title="Salary Reports" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <!-- Filters Section -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Filters"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <TextView
+                        android:id="@+id/tvStartDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_spinner"
+                        android:drawableEnd="@android:drawable/ic_menu_my_calendar"
+                        android:padding="10dp"
+                        android:text="Start Date"
+                        android:gravity="center_vertical"
+                        android:layout_marginEnd="4dp"/>
+
+                    <TextView
+                        android:id="@+id/tvEndDate"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_spinner"
+                        android:drawableEnd="@android:drawable/ic_menu_my_calendar"
+                        android:padding="10dp"
+                        android:text="End Date"
+                        android:gravity="center_vertical"
+                        android:layout_marginStart="4dp"/>
+                </LinearLayout>
+
+                <Spinner
+                    android:id="@+id/spinnerTrainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_spinner"/>
+
+                <Button
+                    android:id="@+id/btnGenerateReport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Generate Report"
+                    android:layout_marginTop="8dp"
+                    android:backgroundTint="?attr/colorPrimary"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Summary Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Paid: "
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+            
+            <TextView
+                android:id="@+id/tvTotalPaid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$0.00"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/holo_green_dark"/>
+        </LinearLayout>
+
+        <!-- Chart Section -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chartSalaryTrend"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            android:layout_margin="8dp"/>
+
+        <!-- Breakdown List -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Salary Breakdown"
+            android:padding="8dp"
+            android:textStyle="bold"
+            android:background="#EEEEEE"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvReportBreakdown"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="4dp"
+            android:scrollbars="vertical"
+            tools:listitem="@layout/item_salary_report"/>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

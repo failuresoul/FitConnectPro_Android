@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@android:color/white">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Assign Trainer to Member"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Member Selection -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Member"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="8dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerMember"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_spinner"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Trainer Selection -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Trainer"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="8dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerTrainer"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_spinner"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Assignment Date -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Assignment Start Date"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="8dp"/>
+
+    <DatePicker
+        android:id="@+id/datePickerAssignment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:datePickerMode="spinner"
+        android:calendarViewShown="false"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textColor="@color/text_secondary"
+            android:backgroundTint="@android:color/transparent"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+        <Button
+            android:id="@+id/btnAssign"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Assign"
+            android:backgroundTint="@color/primary"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
+
+</LinearLayout>

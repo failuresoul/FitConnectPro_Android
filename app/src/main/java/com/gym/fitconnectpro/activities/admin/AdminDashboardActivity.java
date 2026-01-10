@@ -130,9 +130,11 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
             Intent intent = new Intent(this, TrainerManagementActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_salary) {
-            Toast.makeText(this, "Salary Management - Coming Soon", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, SalaryManagementActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_reports) {
-            Toast.makeText(this, "Reports - Coming Soon", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, SalaryReportsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_logout) {
             showLogoutDialog();
         }

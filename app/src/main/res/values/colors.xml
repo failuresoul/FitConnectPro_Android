@@ -69,4 +69,8 @@
 
     <!-- Surface Colors -->
     <color name="surface_container_low">#F7F9FA</color>
+
+    <!-- Missing Material Colors -->
+    <color name="purple_500">#6200EE</color>
+    <color name="teal_700">#018786</color>
 </resources>
