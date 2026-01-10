@@ -36,6 +36,8 @@
     <string name="action_edit">Edit</string>
     <string name="action_add">Add</string>
     <string name="action_search">Search</string>
+    <string name="save">Save</string>
+    <string name="clear">Clear</string>
 
     <!-- Login -->
     <string name="login_title">Login</string>
@@ -58,11 +60,18 @@
     <string name="error_occurred">An error occurred</string>
     <string name="success">Success</string>
 
-    <!-- Member Registration -->
-    <string name="member_registration">Member Registration</string>
+    <!-- Common Fields -->
     <string name="full_name">Full Name</string>
     <string name="email">Email</string>
     <string name="phone">Phone</string>
+    <string name="auto_generated_credentials">Auto-Generated Credentials</string>
+    <string name="username_label">Username:</string>
+    <string name="password_label">Password:</string>
+    <string name="username_placeholder">Will be auto-generated</string>
+    <string name="password_placeholder">Will be auto-generated</string>
+
+    <!-- Member Registration -->
+    <string name="member_registration">Member Registration</string>
     <string name="date_of_birth">Date of Birth</string>
     <string name="select_date">Select Date</string>
     <string name="gender">Gender</string>
@@ -75,11 +84,6 @@
     <string name="emergency_contact">Emergency Contact</string>
     <string name="register_member">Register Member</string>
     <string name="clear_form">Clear Form</string>
-    <string name="auto_generated_credentials">Auto-Generated Credentials</string>
-    <string name="username_label">Username:</string>
-    <string name="password_label">Password:</string>
-    <string name="username_placeholder">Will be auto-generated</string>
-    <string name="password_placeholder">Will be auto-generated</string>
 
     <!-- Member Management -->
     <string name="member_management">Member Management</string>
@@ -97,4 +101,25 @@
     <string name="suspend">Suspend</string>
     <string name="delete">Delete</string>
     <string name="activate">Activate</string>
+
+    <!-- Trainer Registration -->
+    <string name="trainer_registration">Trainer Registration</string>
+    <string name="personal_information">Personal Information</string>
+    <string name="professional_information">Professional Information</string>
+    <string name="education">Education</string>
+    <string name="certifications">Certifications</string>
+    <string name="experience_years">Experience (Years)</string>
+    <string name="specializations">Specializations</string>
+    <string name="strength_training">Strength Training</string>
+    <string name="cardio">Cardio</string>
+    <string name="yoga">Yoga</string>
+    <string name="nutrition">Nutrition</string>
+    <string name="crossfit">CrossFit</string>
+    <string name="weight_loss">Weight Loss</string>
+    <string name="muscle_gain">Muscle Gain</string>
+    <string name="employment_details">Employment Details</string>
+    <string name="monthly_salary">Monthly Salary</string>
+    <string name="max_clients">Max Clients</string>
+    <string name="account_status">Account Status</string>
+    <string name="register_trainer">Register Trainer</string>
 </resources>

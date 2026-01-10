@@ -50,6 +50,18 @@
             android:theme="@style/Theme.FitConnectPro.NoActionBar"
             android:exported="false" />
 
+        <!-- Trainer Registration Activity -->
+        <activity
+            android:name=".activities.admin.TrainerRegistrationActivity"
+            android:exported="false"
+            android:label="@string/trainer_registration"
+            android:parentActivityName=".activities.admin.AdminDashboardActivity"
+            android:theme="@style/Theme.FitConnectPro">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.admin.AdminDashboardActivity" />
+        </activity>
+
     </application>
 
 </manifest>

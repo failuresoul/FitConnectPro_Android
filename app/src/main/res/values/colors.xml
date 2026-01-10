@@ -66,4 +66,7 @@
     <!-- Success Color variations -->
     <color name="success_dark">#388E3C</color>
     <color name="success_light">#C8E6C9</color>
+
+    <!-- Surface Colors -->
+    <color name="surface_container_low">#F7F9FA</color>
 </resources>

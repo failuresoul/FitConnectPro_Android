@@ -6,16 +6,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".activities.admin.AdminDashboardActivity"
-    tools:openDrawer="start">
+    tools:context=".activities.admin.AdminDashboardActivity">
 
     <!-- Main Content -->
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
-        android:background="#F5F7F8">
+        android:orientation="vertical">
 
+        <!-- AppBar -->
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -57,16 +56,13 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- Fragment Container -->
+        <!-- Content Area -->
         <FrameLayout
             android:id="@+id/content_area"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+            android:layout_height="match_parent" />
 
-
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </LinearLayout>
 
     <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView

@@ -47,7 +47,6 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
 
         session = Session.getInstance(this);
 
-        // Check if user is logged in
         if (!session.isLoggedIn() || !"ADMIN".equals(session.getUserType())) {
             Log.e(TAG, "User not logged in or not admin");
             redirectToLogin();
@@ -60,7 +59,6 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
         setupNavigation();
         setupListeners();
 
-        // Load default fragment - Dashboard Home
         if (savedInstanceState == null) {
             loadFragment(new DashboardHomeFragment());
             navigationView.setCheckedItem(R.id.nav_dashboard);
@@ -75,13 +73,11 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
 
-        // Set toolbar
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
-        // Initialize Header Views
         if (navigationView.getHeaderCount() > 0) {
             android.view.View headerView = navigationView.getHeaderView(0);
             headerAdminName = headerView.findViewById(R.id.tvAdminName);
@@ -94,7 +90,6 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
             }
         }
 
-        // Handle Back Press
         getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -129,7 +124,6 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
             loadFragment(new DashboardHomeFragment());
             toolbarTitle.setText("Admin Dashboard");
         } else if (id == R.id.nav_members) {
-            // Launch Member Management Activity
             Intent intent = new Intent(this, MemberManagementActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_trainers) {

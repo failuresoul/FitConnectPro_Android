@@ -1,21 +1,24 @@
 package com.gym.fitconnectpro.fragments.admin;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.gym.fitconnectpro.R;
+import com.gym.fitconnectpro.activities.admin.MemberRegistrationActivity;
+import com.gym.fitconnectpro.activities.admin.TrainerRegistrationActivity;
 import com.gym.fitconnectpro.dao.StatisticsDAO;
 
 public class DashboardHomeFragment extends Fragment {
 
-    private TextView tvTotalMembers, tvTotalTrainers, tvMonthlyRevenue;
+    private Button btnAddMember, btnAddTrainer;
     private StatisticsDAO statisticsDAO;
 
     @Nullable
@@ -24,49 +27,56 @@ public class DashboardHomeFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dashboard_home, container, false);
 
-        initializeViews(view);
-        loadStatistics();
+        btnAddMember = view.findViewById(R.id.btnAddMember);
+        btnAddTrainer = view.findViewById(R.id.btnAddTrainer);
 
-        return view;
-    }
-
-    private void initializeViews(View view) {
-        tvTotalMembers = view.findViewById(R.id.tvTotalMembers);
-        tvTotalTrainers = view.findViewById(R.id.tvTotalTrainers);
-        tvMonthlyRevenue = view.findViewById(R.id.tvMonthlyRevenue);
-
-        view.findViewById(R.id.btnAddMember).setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(getActivity(), com.gym.fitconnectpro.activities.admin.MemberRegistrationActivity.class);
-            startActivity(intent);
-        });
+        setupListeners();
 
         statisticsDAO = new StatisticsDAO(requireContext());
-    }
 
-    private void loadStatistics() {
-        new Thread(() -> {
-            try {
-                int totalMembers = statisticsDAO.getTotalMembers();
-                int totalTrainers = statisticsDAO.getTotalTrainers();
-                double monthlyRevenue = statisticsDAO.getMonthlyRevenue();
-
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(() -> {
-                        tvTotalMembers.setText(String.valueOf(totalMembers));
-                        tvTotalTrainers.setText(String.valueOf(totalTrainers));
-                        tvMonthlyRevenue.setText(String.format("৳%.2f", monthlyRevenue));
-                    });
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
+        return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadStatistics();
+        loadDashboardStats();
+    }
+
+    private void setupListeners() {
+        btnAddMember.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), MemberRegistrationActivity.class);
+            startActivity(intent);
+        });
+
+        btnAddTrainer.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), TrainerRegistrationActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void loadDashboardStats() {
+        if (statisticsDAO == null) return;
+
+        // Get Views
+        android.widget.TextView tvTotalMembers = getView().findViewById(R.id.tvTotalMembers);
+        android.widget.TextView tvTotalTrainers = getView().findViewById(R.id.tvTotalTrainers);
+        android.widget.TextView tvMonthlyRevenue = getView().findViewById(R.id.tvMonthlyRevenue);
+
+        // Fetch Data
+        int totalMembers = statisticsDAO.getTotalMembers();
+        int totalTrainers = statisticsDAO.getTotalTrainers();
+        double monthlyRevenue = statisticsDAO.getMonthlyRevenue();
+
+        // Update UI
+        if (tvTotalMembers != null) {
+            tvTotalMembers.setText(String.valueOf(totalMembers));
+        }
+        if (tvTotalTrainers != null) {
+            tvTotalTrainers.setText(String.valueOf(totalTrainers));
+        }
+        if (tvMonthlyRevenue != null) {
+            tvMonthlyRevenue.setText(String.format("BDT%.2f", monthlyRevenue));
+        }
     }
 }
-
