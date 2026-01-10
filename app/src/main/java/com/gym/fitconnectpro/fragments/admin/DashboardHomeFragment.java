@@ -35,6 +35,11 @@ public class DashboardHomeFragment extends Fragment {
         tvTotalTrainers = view.findViewById(R.id.tvTotalTrainers);
         tvMonthlyRevenue = view.findViewById(R.id.tvMonthlyRevenue);
 
+        view.findViewById(R.id.btnAddMember).setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(getActivity(), com.gym.fitconnectpro.activities.admin.MemberRegistrationActivity.class);
+            startActivity(intent);
+        });
+
         statisticsDAO = new StatisticsDAO(requireContext());
     }
 

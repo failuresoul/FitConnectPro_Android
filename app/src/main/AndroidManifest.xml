@@ -13,28 +13,35 @@
         android:theme="@style/Theme.FitConnectPro"
         tools:targetApi="31">
 
-        <!-- Main Activity (Launcher with Splash Screen) -->
+        <!-- Login Activity (Main Launcher) -->
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.LoginActivity"
             android:exported="true"
-            android:theme="@style/Theme.FitConnectPro.NoActionBar">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Login Activity -->
-        <activity
-            android:name=".activities.LoginActivity"
-            android:exported="false"
-            android:theme="@style/Theme.FitConnectPro" />
-
         <!-- Admin Dashboard Activity -->
         <activity
             android:name=".activities.admin.AdminDashboardActivity"
             android:exported="false"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.FitConnectPro" />
+
+        <!-- Member Registration Activity -->
+        <activity
+            android:name=".activities.admin.MemberRegistrationActivity"
+            android:exported="false"
+            android:label="@string/member_registration"
+            android:parentActivityName=".activities.admin.AdminDashboardActivity"
+            android:theme="@style/Theme.FitConnectPro">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.admin.AdminDashboardActivity" />
+        </activity>
 
 
     </application>

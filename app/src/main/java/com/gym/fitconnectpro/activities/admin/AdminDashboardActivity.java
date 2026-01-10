@@ -2,6 +2,7 @@ package com.gym.fitconnectpro.activities.admin;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
@@ -19,8 +20,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
+
 import com.gym.fitconnectpro.R;
 import com.gym.fitconnectpro.activities.LoginActivity;
+import com.gym.fitconnectpro.activities.admin.MemberRegistrationActivity;
 import com.gym.fitconnectpro.fragments.admin.ApplicationsFragment;
 import com.gym.fitconnectpro.fragments.admin.DashboardHomeFragment;
 import com.gym.fitconnectpro.fragments.admin.MemberManagementFragment;
@@ -30,6 +33,8 @@ import com.gym.fitconnectpro.fragments.admin.TrainerManagementFragment;
 import com.gym.fitconnectpro.services.Session;
 
 public class AdminDashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private static final String TAG = "AdminDashboard";
 
     private Session session;
     private DrawerLayout drawerLayout;
@@ -44,19 +49,24 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_dashboard);
 
+        Log.d(TAG, "AdminDashboardActivity onCreate started");
+
         session = Session.getInstance(this);
 
         // Check if user is logged in
         if (!session.isLoggedIn() || !"ADMIN".equals(session.getUserType())) {
+            Log.e(TAG, "User not logged in or not admin");
             redirectToLogin();
             return;
         }
+
+        Log.d(TAG, "Admin logged in: " + session.getUsername());
 
         initializeViews();
         setupNavigation();
         setupListeners();
 
-        // Load default fragment
+        // Load default fragment - Dashboard Home
         if (savedInstanceState == null) {
             loadFragment(new DashboardHomeFragment());
             navigationView.setCheckedItem(R.id.nav_dashboard);
@@ -168,18 +178,13 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
         toolbarTitle.setText("Reports");
     }
 
-    public void loadApplications() {
-        loadFragment(new ApplicationsFragment());
-        toolbarTitle.setText("Applications");
-    }
-
     private void showLogoutDialog() {
         new AlertDialog.Builder(this)
-            .setTitle("Logout")
-            .setMessage("Are you sure you want to logout?")
-            .setPositiveButton("Yes", (dialog, which) -> logout())
-            .setNegativeButton("No", null)
-            .show();
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to logout?")
+                .setPositiveButton("Yes", (dialog, which) -> logout())
+                .setNegativeButton("No", null)
+                .show();
     }
 
     private void logout() {
@@ -194,5 +199,4 @@ public class AdminDashboardActivity extends AppCompatActivity implements Navigat
         startActivity(intent);
         finish();
     }
-
 }

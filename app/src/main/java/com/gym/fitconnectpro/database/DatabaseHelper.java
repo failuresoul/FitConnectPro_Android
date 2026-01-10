@@ -17,8 +17,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper instance;
 
     // Database Info
-    private static final String DATABASE_NAME = "gym_system.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "FitConnectPro.db";
+    private static final int DATABASE_VERSION = 3;
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -117,6 +117,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
 
+            // Disable foreign keys to allow dropping tables freely
+            db.execSQL("PRAGMA foreign_keys=OFF;");
+
             // Drop all tables
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_APPLICATIONS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_ATTENDANCE);
@@ -161,20 +164,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_USERS_TABLE);
 
         // Members Table
+        // Members Table - Monolithic structure for DAO compatibility
         String CREATE_MEMBERS_TABLE = "CREATE TABLE " + TABLE_MEMBERS + "("
-                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + KEY_USER_ID + " INTEGER NOT NULL,"
-                + KEY_FULL_NAME + " TEXT NOT NULL,"
-                + KEY_DATE_OF_BIRTH + " DATE,"
-                + KEY_GENDER + " TEXT CHECK(" + KEY_GENDER + " IN ('MALE', 'FEMALE', 'OTHER')),"
-                + KEY_ADDRESS + " TEXT,"
-                + KEY_EMERGENCY_CONTACT + " TEXT,"
-                + KEY_MEDICAL_CONDITIONS + " TEXT,"
-                + KEY_JOIN_DATE + " DATE DEFAULT CURRENT_DATE,"
-                + KEY_STATUS + " TEXT DEFAULT 'ACTIVE' CHECK(" + KEY_STATUS + " IN ('ACTIVE', 'INACTIVE', 'SUSPENDED')),"
-                + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
-                + KEY_UPDATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(" + KEY_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + KEY_ID + ") ON DELETE CASCADE"
+                + "member_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "full_name TEXT,"
+                + "email TEXT,"
+                + "phone TEXT,"
+                + "date_of_birth TEXT,"
+                + "gender TEXT,"
+                + "height REAL,"
+                + "weight REAL,"
+                + "membership_type TEXT,"
+                + "membership_fee REAL,"
+                + "membership_start_date TEXT,"
+                + "membership_end_date TEXT,"
+                + "medical_notes TEXT,"
+                + "emergency_contact TEXT,"
+                + "username TEXT,"
+                + "password TEXT,"
+                + "status TEXT,"
+                + "registration_date TEXT"
                 + ")";
         db.execSQL(CREATE_MEMBERS_TABLE);
 
@@ -205,7 +214,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_STATUS + " TEXT DEFAULT 'ACTIVE' CHECK(" + KEY_STATUS + " IN ('ACTIVE', 'EXPIRED', 'CANCELLED')),"
                 + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
                 + KEY_UPDATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(" + KEY_ID + ") ON DELETE CASCADE"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id) ON DELETE CASCADE"
                 + ")";
         db.execSQL(CREATE_MEMBERSHIPS_TABLE);
 
@@ -218,7 +227,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_STATUS + " TEXT DEFAULT 'ACTIVE' CHECK(" + KEY_STATUS + " IN ('ACTIVE', 'COMPLETED', 'CANCELLED')),"
                 + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
                 + KEY_UPDATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(" + KEY_ID + ") ON DELETE CASCADE,"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id) ON DELETE CASCADE,"
                 + "FOREIGN KEY(" + KEY_TRAINER_ID + ") REFERENCES " + TABLE_TRAINERS + "(" + KEY_ID + ") ON DELETE CASCADE"
                 + ")";
         db.execSQL(CREATE_TRAINER_ASSIGNMENTS_TABLE);
@@ -233,7 +242,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_TRANSACTION_ID + " TEXT,"
                 + KEY_STATUS + " TEXT DEFAULT 'COMPLETED' CHECK(" + KEY_STATUS + " IN ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED')),"
                 + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(" + KEY_ID + ") ON DELETE CASCADE"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id) ON DELETE CASCADE"
                 + ")";
         db.execSQL(CREATE_PAYMENTS_TABLE);
 
@@ -244,7 +253,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_CHECK_IN + " DATETIME NOT NULL,"
                 + KEY_CHECK_OUT + " DATETIME,"
                 + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
-                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(" + KEY_ID + ") ON DELETE CASCADE"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id) ON DELETE CASCADE"
                 + ")";
         db.execSQL(CREATE_ATTENDANCE_TABLE);
 
@@ -359,4 +368,3 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 }
-
