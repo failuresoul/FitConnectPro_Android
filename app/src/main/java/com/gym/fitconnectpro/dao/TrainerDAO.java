@@ -94,9 +94,7 @@ public class TrainerDAO {
             Log.e(TAG, "Error registering trainer: " + e.getMessage(), e);
             return false;
         } finally {
-            if (db != null && db.isOpen()) {
-                db.close();
-            }
+            // Database closed by helper or kept open for singleton
         }
     }
 
@@ -142,7 +140,6 @@ public class TrainerDAO {
             Log.e(TAG, "Error getting all trainers", e);
         } finally {
             if (cursor != null) cursor.close();
-            if (db != null && db.isOpen()) db.close();
         }
         return trainers;
     }
@@ -240,7 +237,7 @@ public class TrainerDAO {
             Log.e(TAG, "Error updating trainer", e);
             return false;
         } finally {
-            if (db != null && db.isOpen()) db.close();
+            // Keep DB open
         }
     }
     
@@ -274,7 +271,7 @@ public class TrainerDAO {
             Log.e(TAG, "Error deleting trainer", e);
             return false;
         } finally {
-             if (db != null && db.isOpen()) db.close();
+             // Keep DB open
         }
     }
 
@@ -438,6 +435,11 @@ public class TrainerDAO {
      * @param trainerId Trainer ID
      * @return List of member IDs
      */
+    /**
+     * Get list of members assigned to a trainer
+     * @param trainerId Trainer ID
+     * @return List of member IDs
+     */
     public List<Integer> getAssignedMembersForTrainer(int trainerId) {
         List<Integer> memberIds = new ArrayList<>();
         SQLiteDatabase db = null;
@@ -462,5 +464,122 @@ public class TrainerDAO {
         
         return memberIds;
     }
-}
 
+    /**
+     * Get list of ClientDetails (Members) assigned to a trainer
+     * @param trainerId Trainer ID
+     * @return List of Member objects
+     */
+    public List<com.gym.fitconnectpro.database.entities.Member> getMyAssignedClients(int trainerId) {
+        List<com.gym.fitconnectpro.database.entities.Member> clients = new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            String query = "SELECT m.member_id, m.full_name, m.email, m.phone, m.date_of_birth, " +
+                           "m.gender, m.height, m.weight, m.membership_type, m.membership_fee, " +
+                           "m.membership_start_date, m.membership_end_date, m.medical_notes, " +
+                           "m.emergency_contact, m.username, m.status, m.registration_date " +
+                           "FROM members m " +
+                           "JOIN trainer_assignments ta ON m.member_id = ta.member_id " +
+                           "WHERE ta.trainer_id = ? AND ta.status = 'ACTIVE' " +
+                           "ORDER BY ta.assigned_date DESC";
+
+            cursor = db.rawQuery(query, new String[]{String.valueOf(trainerId)});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    clients.add(cursorToMember(cursor));
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting assigned clients", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+
+        return clients;
+    }
+
+    /**
+     * Get client details by Member ID
+     * @param memberId Member ID
+     * @return Member object
+     */
+    public com.gym.fitconnectpro.database.entities.Member getClientDetails(int memberId) {
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        com.gym.fitconnectpro.database.entities.Member member = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            String query = "SELECT * FROM members WHERE member_id = ?";
+            
+            cursor = db.rawQuery(query, new String[]{String.valueOf(memberId)});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                member = cursorToMember(cursor);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting client details", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+
+        return member;
+    }
+
+    private com.gym.fitconnectpro.database.entities.Member cursorToMember(Cursor cursor) {
+        com.gym.fitconnectpro.database.entities.Member member = new com.gym.fitconnectpro.database.entities.Member();
+        try {
+            int idIndex = cursor.getColumnIndex("member_id");
+            if (idIndex != -1) {
+                member.setMemberId(cursor.getInt(idIndex));
+            } else {
+                // Try 'id' or '_id' fallback
+                idIndex = cursor.getColumnIndex("id");
+                if (idIndex != -1) member.setMemberId(cursor.getInt(idIndex));
+                else {
+                    idIndex = cursor.getColumnIndex("_id");
+                    if (idIndex != -1) member.setMemberId(cursor.getInt(idIndex));
+                }
+            }
+            
+            member.setFullName(getStringSafe(cursor, "full_name"));
+            member.setEmail(getStringSafe(cursor, "email"));
+            member.setPhone(getStringSafe(cursor, "phone"));
+            member.setDateOfBirth(getStringSafe(cursor, "date_of_birth"));
+            member.setGender(getStringSafe(cursor, "gender"));
+            // Safe parsing for doubles if needed, but getDouble handles column index check
+            member.setHeight(getDoubleSafe(cursor, "height"));
+            member.setWeight(getDoubleSafe(cursor, "weight"));
+            member.setMembershipType(getStringSafe(cursor, "membership_type"));
+            member.setMembershipFee(getDoubleSafe(cursor, "membership_fee"));
+            member.setMembershipStartDate(getStringSafe(cursor, "membership_start_date"));
+            member.setMembershipEndDate(getStringSafe(cursor, "membership_end_date"));
+            member.setMedicalNotes(getStringSafe(cursor, "medical_notes"));
+            member.setEmergencyContact(getStringSafe(cursor, "emergency_contact"));
+            member.setUsername(getStringSafe(cursor, "username"));
+            member.setStatus(getStringSafe(cursor, "status"));
+            member.setCreatedAt(getStringSafe(cursor, "registration_date"));
+        } catch (Exception e) {
+            Log.e(TAG, "Error parsing member", e);
+        }
+        return member;
+    }
+
+    private String getStringSafe(Cursor cursor, String columnName) {
+        int index = cursor.getColumnIndex(columnName);
+        if (index != -1) {
+            String val = cursor.getString(index);
+            return val != null ? val : "";
+        }
+        return "";
+    }
+
+    private double getDoubleSafe(Cursor cursor, String columnName) {
+        int index = cursor.getColumnIndex(columnName);
+        return (index != -1) ? cursor.getDouble(index) : 0.0;
+    }
+}

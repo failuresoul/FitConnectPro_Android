@@ -24,12 +24,18 @@ import com.gym.fitconnectpro.services.Session;
 
 import java.util.List;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import com.gym.fitconnectpro.fragments.trainer.MyClientsFragment;
+
 public class TrainerDashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private android.widget.TableLayout tableRecentMessages;
     private TextView tvNoMessages;
+    private View dashboardContent;
+    private android.widget.FrameLayout fragmentContainer;
     private Button btnCreateMealPlan;
     private TextView tvClientsCount, tvCompletedWorkouts, tvPendingPlans;
     private TextView tvTrainerNameHeader;
@@ -69,25 +75,25 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         // OR I will add a quick lookup method to `TrainerStatisticsDAO` to `getTrainerIdByUserId(int userId)`.
         
         // Let's try to get trainerId.
-        int userId = session.getUserId();
-        // Since I can't easily modify the DAO *again* cheaply without another tool call, 
-        // I'll assume for now that I can pass userId to the DAO methods 
-        // and I will update the DAO to support user_id lookup if needed, 
-        // BUT looking at my DAO implementation: it expects `trainerId` (int) and queries `trainer_id` column.
-        // So I *MUST* get the trainerId.
-        // I will add a method to `DatabaseHelper` or `TrainerStatisticsDAO`?
-        // I'll assume I can get it. For now, I'll pass userId.
-        // Wait, if I pass userId as trainerId, it will fail if they are different.
-        // I'll add `getTrainerIdByUserId` to `TrainerStatisticsDAO` in next step if it fails?
-        // No, I should do it right.
-        // I'll assume `session.getUserId()` is what we have.
-        // I will use a placeholder `1` for trainerId if lookup fails in this step, but in real generic code:
-        trainerId = getTrainerIdFromUserId(userId); 
+        // Session stores the Trainer ID directly in KEY_USER_ID for trainers
+        trainerId = session.getUserId();
+        
+        // Validate if needed, but session should be correct.
+        if (trainerId == -1) {
+            // Fallback or error
+            Toast.makeText(this, "Error: Invalid Session", Toast.LENGTH_LONG).show();
+        } 
 
         initViews();
         setupNavigation();
         loadDashboardStatistics();
         setupListeners();
+        
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                showDashboard();
+            }
+        });
     }
     
     // Placeholder helper - In real app, query DB
@@ -130,6 +136,9 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         btnCreateMealPlan = findViewById(R.id.btnCreateMealPlan);
         btnViewClients = findViewById(R.id.btnViewClients);
         // btnViewMessages removed
+        
+        dashboardContent = findViewById(R.id.dashboard_content);
+        fragmentContainer = findViewById(R.id.fragment_container);
     }
 
     private void setupNavigation() {
@@ -151,7 +160,7 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         tvTrainerNameHeader = headerView.findViewById(R.id.tvTrainerNameHeader);
         String name = session.getFullName();
         if (name == null) name = session.getUsername();
-        tvTrainerNameHeader.setText(name);
+        tvTrainerNameHeader.setText(name + " (ID: " + trainerId + ")");
     }
 
     // ...
@@ -171,8 +180,9 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         tvCompletedWorkouts.setText(String.valueOf(completedWorkouts));
         tvPendingPlans.setText(String.valueOf(pendingPlans));
         
-        // Populate messages table
-        tableRecentMessages.removeViews(2, tableRecentMessages.getChildCount() - 2); // Keep Header(0) and Line(1)
+        if (tableRecentMessages.getChildCount() > 2) {
+            tableRecentMessages.removeViews(2, tableRecentMessages.getChildCount() - 2);
+        }
         
         if (messages.isEmpty()) {
             tvNoMessages.setVisibility(View.VISIBLE);
@@ -195,7 +205,26 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
                 tvContent.setEllipsize(android.text.TextUtils.TruncateAt.END);
                 
                 TextView tvDate = new TextView(this);
-                tvDate.setText(msg.getTimestamp()); // Simplistic, might need formatting
+                // Format timestamp
+                String timestamp = msg.getTimestamp();
+                try {
+                    // Handle potential millisecond precision or different formats
+                    // Common SQLite format: yyyy-MM-dd HH:mm:ss
+                    if (timestamp != null && !timestamp.isEmpty()) {
+                        java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault());
+                        java.util.Date date = inputFormat.parse(timestamp);
+                        
+                        // Output format: Jan 10, 14:30
+                        java.text.SimpleDateFormat outputFormat = new java.text.SimpleDateFormat("MMM dd, HH:mm", java.util.Locale.getDefault());
+                        tvDate.setText(outputFormat.format(date));
+                    } else {
+                        tvDate.setText("-");
+                    }
+                } catch (Exception e) {
+                    // Fallback to raw string if parsing fails
+                    tvDate.setText(timestamp);
+                }
+                
                 tvDate.setTextColor(android.graphics.Color.parseColor("#95A5A6"));
                 tvDate.setGravity(android.view.Gravity.END);
                 tvDate.setTextSize(12);
@@ -204,9 +233,10 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
                 row.addView(tvContent);
                 row.addView(tvDate);
                 
-                // Set layout params for weights if needed, usually TableLayout handles stretching
-                // But for fixed column widths we might need more logic XML based or LayoutParams
-                // row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+                // Explicitly set LayoutParams to ensuring correct width behavior
+                row.setLayoutParams(new android.widget.TableLayout.LayoutParams(
+                        android.widget.TableLayout.LayoutParams.MATCH_PARENT,
+                        android.widget.TableLayout.LayoutParams.WRAP_CONTENT));
                 
                 tableRecentMessages.addView(row);
                 
@@ -222,7 +252,9 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
     private void setupListeners() {
         btnCreatePlan.setOnClickListener(v -> Toast.makeText(this, "Create Workout Plan", Toast.LENGTH_SHORT).show());
         btnCreateMealPlan.setOnClickListener(v -> Toast.makeText(this, "Create Meal Plan", Toast.LENGTH_SHORT).show());
-        btnViewClients.setOnClickListener(v -> Toast.makeText(this, "View My Clients", Toast.LENGTH_SHORT).show());
+        btnViewClients.setOnClickListener(v -> {
+            loadFragment(MyClientsFragment.newInstance(trainerId));
+        });
     }
 
     @Override
@@ -230,9 +262,9 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         int id = item.getItemId();
 
         if (id == R.id.nav_dashboard) {
-            // Already here
+            showDashboard();
         } else if (id == R.id.nav_clients) {
-            Toast.makeText(this, "My Clients - Coming Soon", Toast.LENGTH_SHORT).show();
+            loadFragment(MyClientsFragment.newInstance(trainerId));
         } else if (id == R.id.nav_plans) {
             Toast.makeText(this, "Workout Plans - Coming Soon", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_messages) {
@@ -258,5 +290,26 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         } else {
             super.onBackPressed();
         }
+    }
+    
+    private void showDashboard() {
+        if (dashboardContent != null) dashboardContent.setVisibility(View.VISIBLE);
+        if (fragmentContainer != null) fragmentContainer.setVisibility(View.GONE);
+        getSupportActionBar().setTitle("Trainer Dashboard");
+    }
+
+    private void loadFragment(Fragment fragment) {
+        if (trainerId == -1) {
+             Toast.makeText(this, "Trainer ID error", Toast.LENGTH_SHORT).show();
+             return;
+        }
+        
+        if (dashboardContent != null) dashboardContent.setVisibility(View.GONE);
+        if (fragmentContainer != null) fragmentContainer.setVisibility(View.VISIBLE);
+        
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

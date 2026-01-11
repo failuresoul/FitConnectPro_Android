@@ -105,16 +105,23 @@ public class TrainerStatisticsDAO {
             
             if (cursor.moveToFirst()) {
                 do {
-                    Message msg = new Message();
-                    msg.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
-                    msg.setSenderId(cursor.getInt(cursor.getColumnIndexOrThrow("sender_id")));
-                    msg.setReceiverId(cursor.getInt(cursor.getColumnIndexOrThrow("receiver_id")));
-                    msg.setContent(cursor.getString(cursor.getColumnIndexOrThrow("content")));
-                    msg.setTimestamp(cursor.getString(cursor.getColumnIndexOrThrow("timestamp")));
-                    msg.setRead(cursor.getInt(cursor.getColumnIndexOrThrow("is_read")) == 1);
-                    msg.setSenderName(cursor.getString(cursor.getColumnIndexOrThrow("sender_name")));
-                    
-                    messages.add(msg);
+                Message msg = new Message();
+                msg.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+                msg.setSenderId(cursor.getInt(cursor.getColumnIndexOrThrow("sender_id")));
+                msg.setReceiverId(cursor.getInt(cursor.getColumnIndexOrThrow("receiver_id")));
+                msg.setContent(cursor.getString(cursor.getColumnIndexOrThrow("content")));
+                msg.setTimestamp(cursor.getString(cursor.getColumnIndexOrThrow("timestamp")));
+                msg.setRead(cursor.getInt(cursor.getColumnIndexOrThrow("is_read")) == 1);
+                
+                // Safe Check for sender_name column
+                int nameIndex = cursor.getColumnIndex("sender_name");
+                if (nameIndex != -1) {
+                    msg.setSenderName(cursor.getString(nameIndex));
+                } else {
+                    msg.setSenderName("Unknown");
+                }
+                
+                messages.add(msg);
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
