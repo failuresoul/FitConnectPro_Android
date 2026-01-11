@@ -27,6 +27,7 @@ import java.util.List;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import com.gym.fitconnectpro.fragments.trainer.MyClientsFragment;
+import com.gym.fitconnectpro.fragments.trainer.CreateWorkoutPlanFragment;
 
 public class TrainerDashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -250,10 +251,10 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
     }
 
     private void setupListeners() {
-        btnCreatePlan.setOnClickListener(v -> Toast.makeText(this, "Create Workout Plan", Toast.LENGTH_SHORT).show());
+        btnCreatePlan.setOnClickListener(v -> loadFragment(CreateWorkoutPlanFragment.newInstance(), "Assign Workout"));
         btnCreateMealPlan.setOnClickListener(v -> Toast.makeText(this, "Create Meal Plan", Toast.LENGTH_SHORT).show());
         btnViewClients.setOnClickListener(v -> {
-            loadFragment(MyClientsFragment.newInstance(trainerId));
+            loadFragment(MyClientsFragment.newInstance(trainerId), "My Clients");
         });
     }
 
@@ -264,9 +265,9 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         if (id == R.id.nav_dashboard) {
             showDashboard();
         } else if (id == R.id.nav_clients) {
-            loadFragment(MyClientsFragment.newInstance(trainerId));
+            loadFragment(MyClientsFragment.newInstance(trainerId), "My Clients");
         } else if (id == R.id.nav_plans) {
-            Toast.makeText(this, "Workout Plans - Coming Soon", Toast.LENGTH_SHORT).show();
+            loadFragment(CreateWorkoutPlanFragment.newInstance(), "Assign Workout");
         } else if (id == R.id.nav_messages) {
              Toast.makeText(this, "Messages - Coming Soon", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_logout) {
@@ -298,7 +299,7 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         getSupportActionBar().setTitle("Trainer Dashboard");
     }
 
-    private void loadFragment(Fragment fragment) {
+    private void loadFragment(Fragment fragment, String title) {
         if (trainerId == -1) {
              Toast.makeText(this, "Trainer ID error", Toast.LENGTH_SHORT).show();
              return;
@@ -306,6 +307,10 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         
         if (dashboardContent != null) dashboardContent.setVisibility(View.GONE);
         if (fragmentContainer != null) fragmentContainer.setVisibility(View.VISIBLE);
+        
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(title);
+        }
         
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);

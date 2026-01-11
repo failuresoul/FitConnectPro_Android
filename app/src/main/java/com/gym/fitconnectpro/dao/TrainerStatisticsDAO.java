@@ -46,27 +46,21 @@ public class TrainerStatisticsDAO {
         int count = 0;
         Cursor cursor = null;
         try {
-            // Assuming we check 'workout_plans' for today's completed items? 
-            // Or is there a specific 'workouts' table? 
-            // The requirement says "Today's Client Workouts Completed" from "workout_plans where status='COMPLETED' and date=today".
-            // Since workout_plans has start_date and end_date, maybe we count plans ending today? 
-            // Or maybe plans *checked* today?
-            // Let's assume based on the prompt: Status='COMPLETED' and end_date = today (or updated_at = today). 
-            // Let's use `updated_at` (check `DatabaseHelper` schema... `updated_at` exists).
-            // But usually statistics refer to scheduled sessions. 
-            // If we look at the request: "Count from workout_plans where status='COMPLETED' and date=today"
-            // I will use `updated_at` date comparison for "today".
-            
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            // Count plans that are ACTIVE and Today falls within their range
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             String today = dateFormat.format(new Date());
 
-            String query = "SELECT COUNT(*) FROM workout_plans WHERE trainer_id = ? AND status = 'COMPLETED' AND date(updated_at) = ?";
+            String query = "SELECT COUNT(*) FROM workout_plans " +
+                           "WHERE trainer_id = ? " +
+                           "AND status = 'ACTIVE' " +
+                           "AND ? BETWEEN start_date AND end_date";
+            
             cursor = db.rawQuery(query, new String[]{String.valueOf(trainerId), today});
             if (cursor.moveToFirst()) {
                 count = cursor.getInt(0);
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error counting completed workouts", e);
+            Log.e(TAG, "Error counting active today workouts", e);
         } finally {
             DatabaseHelper.closeCursor(cursor);
         }
@@ -78,13 +72,14 @@ public class TrainerStatisticsDAO {
         int count = 0;
         Cursor cursor = null;
         try {
-            String query = "SELECT COUNT(*) FROM workout_plans WHERE trainer_id = ? AND status = 'PENDING'";
+            // "Pending" in UI maps to "Total Active Plans" for now
+            String query = "SELECT COUNT(*) FROM workout_plans WHERE trainer_id = ? AND status = 'ACTIVE'";
             cursor = db.rawQuery(query, new String[]{String.valueOf(trainerId)});
             if (cursor.moveToFirst()) {
                 count = cursor.getInt(0);
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error counting pending plans", e);
+            Log.e(TAG, "Error counting active plans", e);
         } finally {
             DatabaseHelper.closeCursor(cursor);
         }

@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.gym.fitconnectpro.database.entities.Exercise;
 import com.gym.fitconnectpro.utils.PasswordUtil;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -18,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "FitConnectPro.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6; // Updated to 6
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -32,8 +33,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_SALARIES = "salaries";
     private static final String TABLE_MESSAGES = "messages";
     private static final String TABLE_WORKOUT_PLANS = "workout_plans";
-
-    // ... (Keep existing column constants)
+    
+    // NEW TABLES
+    private static final String TABLE_EXERCISES = "exercises";
+    private static final String TABLE_PLAN_EXERCISES = "plan_exercises";
 
     // Messages Table Columns
     private static final String KEY_SENDER_ID = "sender_id";
@@ -41,11 +44,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_CONTENT = "content";
     private static final String KEY_IS_READ = "is_read";
     private static final String KEY_TIMESTAMP = "timestamp";
-    
+
     // Workout Plans Table Columns
     private static final String KEY_PLAN_NAME = "plan_name";
-
-
 
     // Common Column Names
     private static final String KEY_ID = "id";
@@ -109,6 +110,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String KEY_DEDUCTIONS = "deductions";
     private static final String KEY_NET_SALARY = "net_salary";
     private static final String KEY_PROCESSED_BY = "processed_by";
+    
+    // Exercises Table Columns (NEW)
+    private static final String KEY_EXERCISE_NAME = "name";
+    private static final String KEY_MUSCLE_GROUP = "muscle_group";
+    private static final String KEY_EQUIPMENT = "equipment";
+    private static final String KEY_DIFFICULTY = "difficulty";
+    // KEY_DESCRIPTION exists
+
+    // Plan Exercises Table (NEW)
+    private static final String KEY_PLAN_ID = "plan_id";
+    private static final String KEY_EXERCISE_ID = "exercise_id";
+    private static final String KEY_SETS = "sets";
+    private static final String KEY_REPS = "reps";
+    private static final String KEY_WEIGHT = "weight_kg";
+    private static final String KEY_REST = "rest_seconds";
+    private static final String KEY_NOTES = "notes";
+    private static final String KEY_ORDER_INDEX = "order_index";
 
     // Private constructor for Singleton
     private DatabaseHelper(Context context) {
@@ -131,6 +149,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             createTables(db);
             insertSampleData(db);
+            populateExercises(db); // Add sample exercises
 
             Log.d(TAG, "Database created successfully");
         } catch (Exception e) {
@@ -143,23 +162,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion);
 
-            // Disable foreign keys to allow dropping tables freely
-            db.execSQL("PRAGMA foreign_keys=OFF;");
+            if (oldVersion < 6) {
+                // Version 6: Add Exercises and Plan Exercises tables
+                createExerciseTables(db);
+                populateExercises(db);
+            }
 
-            // Drop all tables
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORKOUT_PLANS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGES);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_APPLICATIONS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_ATTENDANCE);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PAYMENTS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRAINER_ASSIGNMENTS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEMBERSHIPS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRAINERS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_MEMBERS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_SALARIES);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-
-            onCreate(db);
+            // Re-enable foreign keys
+            if (!db.isReadOnly()) {
+                 db.execSQL("PRAGMA foreign_keys=ON;");
+            }
         } catch (Exception e) {
             Log.e(TAG, "Error upgrading database", e);
         }
@@ -192,7 +204,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + ")";
         db.execSQL(CREATE_USERS_TABLE);
 
-        // Members Table
         // Members Table - Monolithic structure for DAO compatibility
         String CREATE_MEMBERS_TABLE = "CREATE TABLE " + TABLE_MEMBERS + "("
                 + "member_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -347,8 +358,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id) ON DELETE CASCADE"
                 + ")";
         db.execSQL(CREATE_WORKOUT_PLANS_TABLE);
-
+        
+        // Add call to new tables
+        createExerciseTables(db);
+        
         Log.d(TAG, "All tables created successfully");
+    }
+    
+    private void createExerciseTables(SQLiteDatabase db) {
+         // Exercises Table
+        String CREATE_EXERCISES_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_EXERCISES + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_EXERCISE_NAME + " TEXT NOT NULL,"
+                + KEY_MUSCLE_GROUP + " TEXT,"
+                + KEY_EQUIPMENT + " TEXT,"
+                + KEY_DIFFICULTY + " TEXT,"
+                + KEY_DESCRIPTION + " TEXT"
+                + ")";
+        db.execSQL(CREATE_EXERCISES_TABLE);
+
+        // Plan Exercises Table
+        String CREATE_PLAN_EXERCISES_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_PLAN_EXERCISES + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_PLAN_ID + " INTEGER NOT NULL,"
+                + KEY_EXERCISE_ID + " INTEGER NOT NULL,"
+                + KEY_SETS + " INTEGER,"
+                + KEY_REPS + " TEXT,"
+                + KEY_WEIGHT + " REAL,"
+                + KEY_REST + " INTEGER,"
+                + KEY_NOTES + " TEXT,"
+                + KEY_ORDER_INDEX + " INTEGER,"
+                + "FOREIGN KEY(" + KEY_PLAN_ID + ") REFERENCES " + TABLE_WORKOUT_PLANS + "(" + KEY_ID + ") ON DELETE CASCADE,"
+                + "FOREIGN KEY(" + KEY_EXERCISE_ID + ") REFERENCES " + TABLE_EXERCISES + "(" + KEY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_PLAN_EXERCISES_TABLE);
     }
 
     /**
@@ -379,6 +422,105 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
             Log.e(TAG, "Error inserting sample data", e);
         }
+    }
+    
+    private void populateExercises(SQLiteDatabase db) {
+        // Check if already populated
+        Cursor cursor = db.rawQuery("SELECT count(*) FROM " + TABLE_EXERCISES, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int count = cursor.getInt(0);
+            cursor.close();
+            if (count > 0) return; // Already populated
+        }
+        
+        db.beginTransaction();
+        try {
+            // Chest
+            insertExercise(db, "Bench Press", "Chest", "Barbell", "Intermediate", "Compound chest exercise");
+            insertExercise(db, "Push Up", "Chest", "Bodyweight", "Beginner", "Classic bodyweight exercise");
+            insertExercise(db, "Incline Dumbbell Press", "Chest", "Dumbbell", "Intermediate", "Upper chest focus");
+            insertExercise(db, "Chest Fly", "Chest", "Dumbbell/Machine", "Beginner", "Isolation for chest");
+            insertExercise(db, "Cable Crossover", "Chest", "Cable", "Intermediate", "Constant tension chest isolation");
+            
+            // Back
+            insertExercise(db, "Deadlift", "Back", "Barbell", "Advanced", "Full body compound power movement");
+            insertExercise(db, "Pull Up", "Back", "Bodyweight", "Intermediate", "Vertical pull for lats");
+            insertExercise(db, "Lat Pulldown", "Back", "Cable", "Beginner", "Vertical pull machine alternative");
+            insertExercise(db, "Bent Over Row", "Back", "Barbell", "Intermediate", "Horizontal pull for thickness");
+            insertExercise(db, "Seated Cable Row", "Back", "Cable", "Beginner", "Horizontal pull machine");
+            insertExercise(db, "Face Pull", "Back", "Cable", "Beginner", "Rear delts and rotator cuff health");
+            
+            // Legs
+            insertExercise(db, "Squat", "Legs", "Barbell", "Intermediate", "King of leg exercises");
+            insertExercise(db, "Leg Press", "Legs", "Machine", "Beginner", "Heavy leg compound movement");
+            insertExercise(db, "Lunges", "Legs", "Dumbbell/Bodyweight", "Beginner", "Unilateral leg work");
+            insertExercise(db, "Leg Extension", "Legs", "Machine", "Beginner", "Isolation for quads");
+            insertExercise(db, "Leg Curl", "Legs", "Machine", "Beginner", "Isolation for hamstrings");
+            insertExercise(db, "Calf Raise", "Legs", "Machine/Dumbbell", "Beginner", "Isolation for calves");
+            insertExercise(db, "Romanian Deadlift", "Legs", "Barbell", "Intermediate", "Posterior chain focus");
+            
+            // Shoulders
+            insertExercise(db, "Overhead Press", "Shoulders", "Barbell", "Intermediate", "Vertical push for mass");
+            insertExercise(db, "Lateral Raise", "Shoulders", "Dumbbell", "Beginner", "Side delt isolation for width");
+            insertExercise(db, "Front Raise", "Shoulders", "Dumbbell", "Beginner", "Front delt isolation");
+            insertExercise(db, "Arnold Press", "Shoulders", "Dumbbell", "Intermediate", "Rotational shoulder press");
+            insertExercise(db, "Shrugs", "Shoulders", "Dumbbell/Barbell", "Beginner", "Traps isolation");
+            
+            // Arms - Biceps
+            insertExercise(db, "Barbell Curl", "Biceps", "Barbell", "Beginner", "Mass builder for biceps");
+            insertExercise(db, "Hammer Curl", "Biceps", "Dumbbell", "Beginner", "Brachialis and forearm focus");
+            insertExercise(db, "Preacher Curl", "Biceps", "Machine/Barbell", "Intermediate", "Strict isolation");
+            insertExercise(db, "Concentration Curl", "Biceps", "Dumbbell", "Beginner", "Peak focus");
+            
+            // Arms - Triceps
+            insertExercise(db, "Tricep Extension", "Triceps", "Cable", "Beginner", "Isolation pushdown");
+            insertExercise(db, "Skullcrusher", "Triceps", "Barbell", "Intermediate", "Long head focus");
+            insertExercise(db, "Dips", "Triceps", "Bodyweight", "Intermediate", "Compound push");
+            insertExercise(db, "Close Grip Bench Press", "Triceps", "Barbell", "Intermediate", "Compound tricep mass");
+            
+            // Core
+            insertExercise(db, "Plank", "Core", "Bodyweight", "Beginner", "Isometric stability");
+            insertExercise(db, "Crunches", "Core", "Bodyweight", "Beginner", "Upper abs");
+            insertExercise(db, "Leg Raise", "Core", "Bodyweight", "Intermediate", "Lower abs");
+            insertExercise(db, "Russian Twist", "Core", "Bodyweight", "Beginner", "Obliques");
+            insertExercise(db, "Ab Wheel Rollout", "Core", "Ab Wheel", "Advanced", "Full core extension");
+            
+            // Cardio
+            insertExercise(db, "Treadmill Run", "Cardio", "Machine", "Beginner", "Running indoors");
+            insertExercise(db, "Cycling", "Cardio", "Bike", "Beginner", "Low impact cardio");
+            insertExercise(db, "Elliptical", "Cardio", "Machine", "Beginner", "Low impact full body");
+            insertExercise(db, "Jump Rope", "Cardio", "Rope", "Intermediate", "High intensity coordination");
+            insertExercise(db, "Burpees", "Cardio", "Bodyweight", "Advanced", "Full body conditioning");
+            
+            // Functional / Crossfit
+            insertExercise(db, "Kettlebell Swing", "Functional", "Kettlebell", "Intermediate", "Hinge explosive movement");
+            insertExercise(db, "Box Jump", "Functional", "Box", "Intermediate", "Explosive power");
+            insertExercise(db, "Wall Ball", "Functional", "Medicine Ball", "Intermediate", "Squat and press conditioning");
+            insertExercise(db, "Thruster", "Functional", "Barbell", "Advanced", "Full body metabolic");
+            insertExercise(db, "Clean and Jerk", "Functional", "Barbell", "Advanced", "Olympic lift");
+            insertExercise(db, "Snatch", "Functional", "Barbell", "Advanced", "Olympic lift");
+            insertExercise(db, "Farmer Carry", "Functional", "Dumbbell/Kettlebell", "Beginner", "Grip and stability");
+            insertExercise(db, "Battle Ropes", "Functional", "Rope", "Beginner", "Conditioning");
+            
+            db.setTransactionSuccessful();
+            Log.d(TAG, "Exercises populated successfully");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Error populating exercises", e);
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void insertExercise(SQLiteDatabase db, String name, String muscle, String equipment, String difficulty, String description) {
+        ContentValues values = new ContentValues();
+        values.put(KEY_EXERCISE_NAME, name);
+        values.put(KEY_MUSCLE_GROUP, muscle);
+        values.put(KEY_EQUIPMENT, equipment);
+        values.put(KEY_DIFFICULTY, difficulty);
+        values.put(KEY_DESCRIPTION, description);
+        db.insert(TABLE_EXERCISES, null, values);
     }
 
     /**
@@ -437,6 +579,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.delete(TABLE_SALARIES, null, null);
             db.delete(TABLE_MEMBERS, null, null);
             db.delete(TABLE_USERS, null, null);
+            db.delete(TABLE_WORKOUT_PLANS, null, null);
+            db.delete(TABLE_EXERCISES, null, null);
 
             db.setTransactionSuccessful();
             Log.d(TAG, "All tables cleared successfully");

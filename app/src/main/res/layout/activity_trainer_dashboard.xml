@@ -191,7 +191,7 @@
                             android:layout_weight="1"
                             android:backgroundTint="#3498DB"
                             android:padding="12dp"
-                            android:text="Create Workout Plan"
+                            android:text="Assign Workout"
                             android:textColor="@android:color/white"
                             android:textSize="12sp" />
 
@@ -200,7 +200,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Create Meal Plan"
+                            android:text="Assign Meal Plan"
                             android:backgroundTint="#2ECC71"
                             android:textColor="@android:color/white"
                             android:textSize="12sp"

@@ -67,6 +67,15 @@ public class MyClientsFragment extends Fragment implements MyClientsAdapter.Clie
         searchView = view.findViewById(R.id.searchViewClients);
         tvEmptyState = view.findViewById(R.id.tvEmptyState);
         
+        android.widget.ImageButton btnBack = view.findViewById(R.id.btnBack);
+        // "First page for navigation drawer" -> No back button needed
+        btnBack.setVisibility(View.GONE);
+        btnBack.setOnClickListener(v -> {
+            if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+                getParentFragmentManager().popBackStack();
+            }
+        });
+        
         trainerDAO = new TrainerDAO(requireContext());
 
         setupRecyclerView();
@@ -140,9 +149,14 @@ public class MyClientsFragment extends Fragment implements MyClientsAdapter.Clie
 
     @Override
     public void onCreatePlan(Member client) {
-        // Placeholder for Create Workout Plan
-        Toast.makeText(getContext(), "Create Plan for: " + client.getFullName(), Toast.LENGTH_SHORT).show();
-        // TODO: Navigate to CreateWorkoutPlanFragment
+        // Navigate to ClientPlansFragment instead of direct creation
+        ClientPlansFragment plansFragment = ClientPlansFragment.newInstance(client.getMemberId());
+        if (getParentFragmentManager() != null) {
+             getParentFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, plansFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
     @Override
