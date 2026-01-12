@@ -18,7 +18,7 @@
             android:icon="@android:drawable/ic_menu_sort_by_size"
             android:title="Meal Plans" />
          <item
-            android:id="@+id/nav_goals"
+            android:id="@+id/nav_daily_goals"
             android:icon="@android:drawable/ic_menu_agenda"
             android:title="Daily Goals" />
     </group>

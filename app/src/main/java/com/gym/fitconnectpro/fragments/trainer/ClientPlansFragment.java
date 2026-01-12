@@ -129,8 +129,43 @@ public class ClientPlansFragment extends Fragment {
                 tvWorkoutPlansList.setText("No active workout plans assigned.");
             }
 
-            // 3. Meal Plans (Placeholder)
-            tvMealPlansList.setText("No active meal plans assigned.");
+            // 3. Meal Plans
+            com.gym.fitconnectpro.dao.MealPlanDAO mealPlanDAO = new com.gym.fitconnectpro.dao.MealPlanDAO(requireContext());
+            List<com.gym.fitconnectpro.models.MealPlan> mealPlans = mealPlanDAO.getMealPlans(memberId);
+            
+            if (mealPlans != null && !mealPlans.isEmpty()) {
+                StringBuilder mpSb = new StringBuilder();
+                String currentDate = "";
+                
+                for (com.gym.fitconnectpro.models.MealPlan mp : mealPlans) {
+                    // Group by date visually
+                    if (!mp.getPlanDate().equals(currentDate)) {
+                        if (mpSb.length() > 0) mpSb.append("\n\n--------------------\n\n");
+                        mpSb.append("DATE: ").append(mp.getPlanDate());
+                        currentDate = mp.getPlanDate();
+                    }
+                    
+                    mpSb.append("\n\n").append(mp.getMealType().toUpperCase());
+                    if (mp.getInstructions() != null && !mp.getInstructions().isEmpty()) {
+                        mpSb.append(" (").append(mp.getInstructions()).append(")");
+                    }
+                    
+                    if (mp.getFoods() != null && !mp.getFoods().isEmpty()) {
+                        for (com.gym.fitconnectpro.models.MealPlanFood f : mp.getFoods()) {
+                            double cal = 0;
+                            if (f.getFood() != null) cal = f.getFood().getCalories() * f.getQuantity();
+                            
+                            mpSb.append("\n• ").append(f.getFood() != null ? f.getFood().getName() : "Unknown");
+                            mpSb.append(" x ").append(f.getQuantity()).append(" (~").append((int)cal).append(" kcal)");
+                        }
+                    } else {
+                        mpSb.append("\n(No foods listed)");
+                    }
+                }
+                tvMealPlansList.setText(mpSb.toString());
+            } else {
+                tvMealPlansList.setText("No active meal plans assigned.");
+            }
             
         } catch (Exception e) {
             Log.e("ClientPlansFragment", "Error loading data", e);

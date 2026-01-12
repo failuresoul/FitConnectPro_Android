@@ -19,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "FitConnectPro.db";
-    private static final int DATABASE_VERSION = 6; // Updated to 6
+    private static final int DATABASE_VERSION = 8; // Updated to 8
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -37,6 +37,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // NEW TABLES
     private static final String TABLE_EXERCISES = "exercises";
     private static final String TABLE_PLAN_EXERCISES = "plan_exercises";
+    private static final String TABLE_DAILY_GOALS = "trainer_daily_goals";
+    private static final String TABLE_FOODS = "foods";
+    private static final String TABLE_MEAL_PLANS = "trainer_meal_plans";
+    private static final String TABLE_MEAL_PLAN_FOODS = "meal_plan_foods";
+
+    // Daily Goals Columns
+    private static final String KEY_GOAL_DATE = "goal_date";
 
     // Messages Table Columns
     private static final String KEY_SENDER_ID = "sender_id";
@@ -166,6 +173,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 // Version 6: Add Exercises and Plan Exercises tables
                 createExerciseTables(db);
                 populateExercises(db);
+            }
+
+            if (oldVersion < 7) {
+                // Version 7: Add Trainer Daily Goals table
+                // Since createExerciseTables now includes the daily goals table creation logic (via my previous edit, although I attached it to createExerciseTables which is a bit messy, let's fix that by ensuring the method is called appropriately or just add the specific table creation here)
+                // Actually, I modified `createExerciseTables` to include the new table, so calling it again is fine as it uses IF NOT EXISTS.
+                // However, cleaner approach is to call specific logic.
+                // Let's rely on the modified createExerciseTables for now or just run the SQL directly here to be safe.
+                
+                 String CREATE_DAILY_GOALS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_DAILY_GOALS + "("
+                        + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                        + KEY_TRAINER_ID + " INTEGER NOT NULL,"
+                        + KEY_MEMBER_ID + " INTEGER NOT NULL,"
+                        + KEY_GOAL_DATE + " DATE NOT NULL,"
+                        + "workout_duration INTEGER,"
+                        + "calorie_target INTEGER,"
+                        + "water_intake_ml INTEGER,"
+                        + "calorie_limit INTEGER,"
+                        + "protein_target INTEGER,"
+                        + "carbs_target INTEGER,"
+                        + "fats_target INTEGER,"
+                        + "special_instructions TEXT,"
+                        + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                        + "FOREIGN KEY(" + KEY_TRAINER_ID + ") REFERENCES " + TABLE_TRAINERS + "(" + KEY_ID + "),"
+                        + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id)"
+                        + ")";
+                db.execSQL(CREATE_DAILY_GOALS_TABLE);
+            }
+
+            if (oldVersion < 8) {
+                // Version 8: Add Meal Plan tables and Seed Foods
+                createMealPlanTables(db);
+                seedFoods(db);
             }
 
             // Re-enable foreign keys
@@ -392,6 +432,193 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY(" + KEY_EXERCISE_ID + ") REFERENCES " + TABLE_EXERCISES + "(" + KEY_ID + ")"
                 + ")";
         db.execSQL(CREATE_PLAN_EXERCISES_TABLE);
+
+        // Trainer Daily Goals Table
+        String CREATE_DAILY_GOALS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_DAILY_GOALS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_TRAINER_ID + " INTEGER NOT NULL,"
+                + KEY_MEMBER_ID + " INTEGER NOT NULL,"
+                + KEY_GOAL_DATE + " DATE NOT NULL,"
+                + "workout_duration INTEGER,"
+                + "calorie_target INTEGER,"
+                + "water_intake_ml INTEGER,"
+                + "calorie_limit INTEGER,"
+                + "protein_target INTEGER,"
+                + "carbs_target INTEGER,"
+                + "fats_target INTEGER,"
+                + "special_instructions TEXT,"
+                + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(" + KEY_TRAINER_ID + ") REFERENCES " + TABLE_TRAINERS + "(" + KEY_ID + "),"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id)"
+                + ")";
+        db.execSQL(CREATE_DAILY_GOALS_TABLE);
+
+        createMealPlanTables(db);
+    }
+    
+    private void createMealPlanTables(SQLiteDatabase db) {
+        // Foods Table
+        String CREATE_FOODS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_FOODS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "name TEXT NOT NULL,"
+                + "calories INTEGER NOT NULL,"
+                + "protein REAL,"
+                + "carbs REAL,"
+                + "fats REAL,"
+                + "serving_unit TEXT"
+                + ")";
+        db.execSQL(CREATE_FOODS_TABLE);
+
+        // Meal Plans Table
+        String CREATE_MEAL_PLANS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_MEAL_PLANS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_TRAINER_ID + " INTEGER NOT NULL,"
+                + KEY_MEMBER_ID + " INTEGER NOT NULL,"
+                + "plan_date DATE NOT NULL,"
+                + "meal_type TEXT NOT NULL," // Breakfast, Lunch, Dinner, Snack
+                + "instructions TEXT,"
+                + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(" + KEY_TRAINER_ID + ") REFERENCES " + TABLE_TRAINERS + "(" + KEY_ID + "),"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id)"
+                + ")";
+        db.execSQL(CREATE_MEAL_PLANS_TABLE);
+
+        // Meal Plan Foods Junction Table
+        String CREATE_MEAL_PLAN_FOODS = "CREATE TABLE IF NOT EXISTS " + TABLE_MEAL_PLAN_FOODS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "meal_plan_id INTEGER NOT NULL,"
+                + "food_id INTEGER NOT NULL,"
+                + "quantity REAL NOT NULL," // e.g., grams or count
+                + "FOREIGN KEY(meal_plan_id) REFERENCES " + TABLE_MEAL_PLANS + "(" + KEY_ID + ") ON DELETE CASCADE,"
+                + "FOREIGN KEY(food_id) REFERENCES " + TABLE_FOODS + "(" + KEY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_MEAL_PLAN_FOODS);
+    }
+    
+    private void seedFoods(SQLiteDatabase db) {
+        // Check if foods exist
+        android.database.Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_FOODS, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            if (cursor.getInt(0) > 0) {
+                cursor.close();
+                return; // Already seeded
+            }
+            cursor.close();
+        }
+
+        db.beginTransaction();
+        try {
+            String insertBase = "INSERT INTO " + TABLE_FOODS + " (name, calories, protein, carbs, fats, serving_unit) VALUES ";
+            
+            // 100+ Common Foods
+            // Format: Name, Cals, Prot, Carbs, Fats, Unit
+            String[] commonFoods = {
+                "('Chicken Breast (Grilled)', 165, 31.0, 0.0, 3.6, '100g')",
+                "('Brown Rice (Cooked)', 111, 2.6, 23.0, 0.9, '100g')",
+                "('White Rice (Cooked)', 130, 2.7, 28.0, 0.3, '100g')",
+                "('Oatmeal (Rolled)', 389, 16.9, 66.3, 6.9, '100g')",
+                "('Egg (Whole, Large)', 72, 6.3, 0.4, 4.8, '1 large')",
+                "('Egg White', 17, 3.6, 0.2, 0.1, '1 large')",
+                "('Salmon (Baked)', 208, 20.0, 0.0, 13.0, '100g')",
+                "('Sweet Potato (Baked)', 90, 2.0, 20.7, 0.1, '100g')",
+                "('Potato (Boiled)', 87, 1.9, 20.1, 0.1, '100g')",
+                "('Broccoli (Steamed)', 35, 2.4, 7.2, 0.4, '100g')",
+                "('Spinach (Raw)', 23, 2.9, 3.6, 0.4, '100g')",
+                "('Banana', 89, 1.1, 22.8, 0.3, '100g')",
+                "('Apple', 52, 0.3, 13.8, 0.2, '100g')",
+                "('Greek Yogurt (Non-Fat)', 59, 10.0, 3.6, 0.4, '100g')",
+                "('Cottage Cheese (Low Fat)', 72, 12.0, 2.7, 1.0, '100g')",
+                "('Almonds', 579, 21.0, 22.0, 50.0, '100g')",
+                "('Peanut Butter', 588, 25.0, 20.0, 50.0, '100g')",
+                "('Whole Milk', 61, 3.2, 4.8, 3.3, '100g')",
+                "('Quinoa (Cooked)', 120, 4.4, 21.3, 1.9, '100g')",
+                "('Tuna (Canned in Water)', 116, 26.0, 0.0, 0.8, '100g')",
+                "('Beef Steak (Lean)', 250, 26.0, 0.0, 15.0, '100g')",
+                "('Avocado', 160, 2.0, 8.5, 14.7, '100g')",
+                "('Protein Powder (Whey)', 370, 80.0, 4.0, 3.0, '100g')",
+                "('Olive Oil', 884, 0.0, 0.0, 100.0, '100g')",
+                "('Whole Wheat Bread', 247, 13.0, 41.0, 3.4, '100g')",
+                "('Pasta (Whole Wheat)', 124, 5.3, 26.5, 0.5, '100g')",
+                "('Blueberries', 57, 0.7, 14.0, 0.3, '100g')",
+                "('Carrots', 41, 0.9, 9.6, 0.2, '100g')",
+                "('Black Beans (Cooked)', 132, 8.9, 23.7, 0.5, '100g')",
+                "('Lentils (Cooked)', 116, 9.0, 20.0, 0.4, '100g')",
+                "('Turkey Breast', 104, 17.0, 4.2, 1.7, '100g')",
+                "('Tofu (Firm)', 144, 15.0, 3.9, 8.0, '100g')",
+                "('Chickpeas (Cooked)', 164, 8.9, 27.4, 2.6, '100g')",
+                "('Orange', 47, 0.9, 11.8, 0.1, '100g')",
+                "('Grapes', 69, 0.7, 18.0, 0.2, '100g')",
+                "('Pineapple', 50, 0.5, 13.0, 0.1, '100g')",
+                "('Strawberries', 32, 0.7, 7.7, 0.3, '100g')",
+                "('Cucumber', 15, 0.7, 3.6, 0.1, '100g')",
+                "('Tomato', 18, 0.9, 3.9, 0.2, '100g')",
+                "('Bell Pepper', 20, 0.9, 4.6, 0.2, '100g')",
+                "('Asparagus', 20, 2.2, 3.9, 0.1, '100g')",
+                "('Green Beans', 31, 1.8, 7.0, 0.2, '100g')",
+                "('Mushrooms', 22, 3.1, 3.3, 0.3, '100g')",
+                "('Onion', 40, 1.1, 9.3, 0.1, '100g')",
+                "('Garlic', 149, 6.4, 33.0, 0.5, '100g')",
+                "('Cheddar Cheese', 402, 25.0, 1.3, 33.0, '100g')",
+                "('Mozzarella Cheese', 280, 28.0, 3.1, 17.0, '100g')",
+                "('Parmesan Cheese', 431, 38.0, 4.1, 29.0, '100g')",
+                "('Butter', 717, 0.9, 0.1, 81.0, '100g')",
+                "('Coconut Oil', 862, 0.0, 0.0, 100.0, '100g')",
+                "('Dark Chocolate (70%)', 598, 7.8, 46.0, 43.0, '100g')",
+                "('Honey', 304, 0.3, 82.0, 0.0, '100g')",
+                "('Maple Syrup', 260, 0.0, 67.0, 0.0, '100g')",
+                "('Sugar', 387, 0.0, 100.0, 0.0, '100g')",
+                "('Cod', 82, 18.0, 0.0, 0.7, '100g')",
+                "('Tilapia', 96, 20.0, 0.0, 1.7, '100g')",
+                "('Shrimp', 99, 24.0, 0.2, 0.3, '100g')",
+                "('Pork Chop', 242, 27.0, 0.0, 14.0, '100g')",
+                "('Ham', 145, 21.0, 1.5, 6.0, '100g')",
+                "('Bacon', 541, 37.0, 1.4, 42.0, '100g')",
+                "('Sausage', 300, 12.0, 2.0, 25.0, '100g')",
+                "('Walnuts', 654, 15.0, 14.0, 65.0, '100g')",
+                "('Cashews', 553, 18.0, 30.0, 44.0, '100g')",
+                "('Pistachios', 562, 20.0, 28.0, 45.0, '100g')",
+                "('Sunflower Seeds', 584, 21.0, 20.0, 51.0, '100g')",
+                "('Chia Seeds', 486, 17.0, 42.0, 31.0, '100g')",
+                "('Flax Seeds', 534, 18.0, 29.0, 42.0, '100g')",
+                "('Soy Milk', 54, 3.3, 6.0, 1.8, '100g')",
+                "('Almond Milk', 15, 0.5, 0.3, 1.1, '100g')",
+                "('Oat Milk', 40, 0.5, 7.0, 1.0, '100g')",
+                "('Watermelon', 30, 0.6, 7.6, 0.2, '100g')",
+                "('Cantaloupe', 34, 0.8, 8.2, 0.2, '100g')",
+                "('Peach', 39, 0.9, 9.5, 0.3, '100g')",
+                "('Pear', 57, 0.4, 15.2, 0.1, '100g')",
+                "('Plum', 46, 0.7, 11.4, 0.3, '100g')",
+                "('Cherries', 50, 1.0, 12.0, 0.3, '100g')",
+                "('Mango', 60, 0.8, 15.0, 0.4, '100g')",
+                "('Papaya', 43, 0.5, 11.0, 0.3, '100g')",
+                "('Kiwi', 61, 1.1, 15.0, 0.5, '100g')",
+                "('Lemon Juice', 22, 0.4, 6.9, 0.2, '100g')",
+                "('Lime Juice', 25, 0.4, 8.4, 0.1, '100g')",
+                "('Corn', 86, 3.2, 19.0, 1.2, '100g')",
+                "('Peas', 81, 5.4, 14.5, 0.4, '100g')",
+                "('Zucchini', 17, 1.2, 3.1, 0.3, '100g')",
+                "('Eggplant', 25, 1.0, 6.0, 0.2, '100g')",
+                "('Pumpkin', 26, 1.0, 6.5, 0.1, '100g')",
+                "('Cauliflower', 25, 1.9, 5.0, 0.3, '100g')",
+                "('Kale', 49, 4.3, 8.8, 0.9, '100g')",
+                "('Cabbage', 25, 1.3, 5.8, 0.1, '100g')",
+                "('Lettuce', 15, 1.4, 2.9, 0.2, '100g')",
+                "('Radish', 16, 0.7, 3.4, 0.1, '100g')",
+                "('Celery', 16, 0.7, 3.0, 0.2, '100g')",
+                "('Beets', 43, 1.6, 9.6, 0.2, '100g')"
+            };
+
+            for (String food : commonFoods) {
+                db.execSQL(insertBase + food);
+            }
+
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     /**

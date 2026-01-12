@@ -1,5 +1,6 @@
 package com.gym.fitconnectpro.activities.trainer;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -28,6 +29,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import com.gym.fitconnectpro.fragments.trainer.MyClientsFragment;
 import com.gym.fitconnectpro.fragments.trainer.CreateWorkoutPlanFragment;
+import com.gym.fitconnectpro.fragments.trainer.SetDailyGoalsFragment;
 
 public class TrainerDashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -37,7 +39,7 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
     private TextView tvNoMessages;
     private View dashboardContent;
     private android.widget.FrameLayout fragmentContainer;
-    private Button btnCreateMealPlan;
+    private Button btnSetGoals;
     private TextView tvClientsCount, tvCompletedWorkouts, tvPendingPlans;
     private TextView tvTrainerNameHeader;
     private Button btnCreatePlan, btnViewClients;
@@ -134,7 +136,7 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         tvNoMessages = findViewById(R.id.tvNoMessages);
         
         btnCreatePlan = findViewById(R.id.btnCreatePlan);
-        btnCreateMealPlan = findViewById(R.id.btnCreateMealPlan);
+        btnSetGoals = findViewById(R.id.btnSetGoals);
         btnViewClients = findViewById(R.id.btnViewClients);
         // btnViewMessages removed
         
@@ -252,7 +254,7 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
 
     private void setupListeners() {
         btnCreatePlan.setOnClickListener(v -> loadFragment(CreateWorkoutPlanFragment.newInstance(), "Assign Workout"));
-        btnCreateMealPlan.setOnClickListener(v -> Toast.makeText(this, "Create Meal Plan", Toast.LENGTH_SHORT).show());
+        btnSetGoals.setOnClickListener(v -> loadFragment(SetDailyGoalsFragment.newInstance(), "Set Daily Goals"));
         btnViewClients.setOnClickListener(v -> {
             loadFragment(MyClientsFragment.newInstance(trainerId), "My Clients");
         });
@@ -268,6 +270,10 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
             loadFragment(MyClientsFragment.newInstance(trainerId), "My Clients");
         } else if (id == R.id.nav_plans) {
             loadFragment(CreateWorkoutPlanFragment.newInstance(), "Assign Workout");
+        } else if (id == R.id.nav_daily_goals) {
+            loadFragment(SetDailyGoalsFragment.newInstance(), "Set Daily Goals");
+        } else if (id == R.id.nav_meals) {
+            loadFragment(com.gym.fitconnectpro.fragments.trainer.CreateMealPlanFragment.newInstance(), "Assign Meal Plan");
         } else if (id == R.id.nav_messages) {
              Toast.makeText(this, "Messages - Coming Soon", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_logout) {
