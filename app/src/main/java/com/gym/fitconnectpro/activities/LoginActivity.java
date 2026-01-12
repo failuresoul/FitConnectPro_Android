@@ -20,6 +20,7 @@ import com.gym.fitconnectpro.R;
 import com.gym.fitconnectpro.activities.admin.AdminDashboardActivity;
 import com.gym.fitconnectpro.dao.AuthDAO;
 import com.gym.fitconnectpro.models.User;
+import com.gym.fitconnectpro.models.Member;
 import com.gym.fitconnectpro.database.entities.Trainer;
 import com.gym.fitconnectpro.services.Session;
 import com.gym.fitconnectpro.utils.ValidationUtil;
@@ -199,12 +200,18 @@ public class LoginActivity extends AppCompatActivity {
                     session.setCurrentTrainer(trainer);
                     success = true;
                 }
+            } else if ("MEMBER".equals(userType)) {
+                Member member = authDAO.authenticateMember(username, password);
+                if (member != null) {
+                    session.setCurrentMember(member);
+                    success = true;
+                }
             } else {
-                // Show message that only admin and trainer can login
+                // Show message that only valid user types can login
                 runOnUiThread(() -> {
                     btnLogin.setEnabled(true);
                     btnLogin.setText("LOGIN");
-                    Toast.makeText(this, "Only Admin and Trainer can login at this time", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Invalid user type selected", Toast.LENGTH_LONG).show();
                 });
                 return;
             }
@@ -262,9 +269,6 @@ public class LoginActivity extends AppCompatActivity {
         etPassword.requestFocus();
     }
 
-    /**
-     * Navigate to appropriate dashboard based on user type
-     */
     private void navigateToDashboard(String userType) {
         // Only admin dashboard is available
         if ("ADMIN".equals(userType)) {
@@ -273,6 +277,10 @@ public class LoginActivity extends AppCompatActivity {
             finish(); // Prevent going back to login screen
         } else if ("TRAINER".equals(userType)) {
             Intent intent = new Intent(LoginActivity.this, com.gym.fitconnectpro.activities.trainer.TrainerDashboardActivity.class);
+            startActivity(intent);
+            finish();
+        } else if ("MEMBER".equals(userType)) {
+            Intent intent = new Intent(LoginActivity.this, com.gym.fitconnectpro.activities.member.MemberDashboardActivity.class);
             startActivity(intent);
             finish();
         } else {

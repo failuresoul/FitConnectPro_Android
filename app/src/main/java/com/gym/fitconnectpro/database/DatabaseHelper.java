@@ -19,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "FitConnectPro.db";
-    private static final int DATABASE_VERSION = 10; // Updated to 10
+    private static final int DATABASE_VERSION = 11; // Updated to 11 for user_id in members
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -224,6 +224,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 seedClientData(db);
             }
 
+            if (oldVersion < 11) {
+                 // Version 11: Add user_id to members table
+                 // We need to check if column exists first or use try-catch as older versions of SQLite generally support ADD COLUMN
+                 try {
+                     db.execSQL("ALTER TABLE " + TABLE_MEMBERS + " ADD COLUMN user_id INTEGER");
+                 } catch (Exception e) {
+                     Log.w(TAG, "Column user_id might already exist: " + e.getMessage());
+                 }
+            }
+
             // Re-enable foreign keys
             if (!db.isReadOnly()) {
                  db.execSQL("PRAGMA foreign_keys=ON;");
@@ -263,6 +273,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Members Table - Monolithic structure for DAO compatibility
         String CREATE_MEMBERS_TABLE = "CREATE TABLE " + TABLE_MEMBERS + "("
                 + "member_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "user_id INTEGER," // Added linkage to users table
                 + "full_name TEXT,"
                 + "email TEXT,"
                 + "phone TEXT,"

@@ -234,7 +234,7 @@ public class AuthDAO {
                     );
 
                     if (memberCursor != null && memberCursor.moveToFirst()) {
-                        int memberIdIndex = memberCursor.getColumnIndex(KEY_ID);
+                        int memberIdIndex = memberCursor.getColumnIndex(KEY_MEMBER_ID);
                         int memberId = memberCursor.getInt(memberIdIndex);
 
                         // Check if membership is valid (not expired)
@@ -249,6 +249,8 @@ public class AuthDAO {
                         } else {
                             Log.w(TAG, "Member membership has expired: " + username);
                         }
+                    } else {
+                        Log.w(TAG, "Member record not found for user_id: " + userId);
                     }
                 }
             }
@@ -490,7 +492,7 @@ public class AuthDAO {
         member.setPhone(userCursor.getString(phoneIndex));
 
         // Extract from member cursor
-        int idIndex = memberCursor.getColumnIndex(KEY_ID);
+        int idIndex = memberCursor.getColumnIndex(KEY_MEMBER_ID);
         int fullNameIndex = memberCursor.getColumnIndex(KEY_FULL_NAME);
         int statusIndex = memberCursor.getColumnIndex(KEY_STATUS);
 

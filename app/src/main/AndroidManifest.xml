@@ -103,6 +103,13 @@
             android:label="Trainer Dashboard"
             android:theme="@style/Theme.FitConnectPro.NoActionBar"
             android:exported="false" />
+
+        <!-- Member Dashboard Activity -->
+        <activity
+            android:name=".activities.member.MemberDashboardActivity"
+            android:label="Member Dashboard"
+            android:theme="@style/Theme.FitConnectPro.NoActionBar"
+            android:exported="false" />
     </application>
 
 </manifest>

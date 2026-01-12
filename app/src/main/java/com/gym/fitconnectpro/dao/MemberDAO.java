@@ -35,27 +35,56 @@ public class MemberDAO {
     public String registerMember(Member member) {
         SQLiteDatabase db = null;
         try {
+            Log.d(TAG, "=== Starting Member Registration ===");
+            Log.d(TAG, "Username: " + member.getUsername());
+            Log.d(TAG, "Email: " + member.getEmail());
+            
             db = dbHelper.getWritableDatabase();
+            Log.d(TAG, "Database connection obtained");
 
             // Check if username already exists
             if (isUsernameExists(db, member.getUsername())) {
                 Log.e(TAG, "Username already exists: " + member.getUsername());
                 return "Username already exists: " + member.getUsername();
             }
+            Log.d(TAG, "Username check passed");
 
             // Hash the password using BCrypt
             String hashedPassword;
             try {
                 hashedPassword = BCrypt.hashpw(member.getPassword(), BCrypt.gensalt());
+                Log.d(TAG, "Password hashed successfully");
             } catch (Exception e) {
+                Log.e(TAG, "Password hashing failed", e);
                 return "Password Hashing Failed: " + e.getMessage();
             }
 
             db.beginTransaction(); // Start Transaction
+            Log.d(TAG, "Transaction started");
 
             try {
-                // Prepare Member values
+                // 1. Insert into Users Table (For Authentication)
+                Log.d(TAG, "Step 1: Inserting into users table");
+                ContentValues userValues = new ContentValues();
+                userValues.put("username", member.getUsername());
+                userValues.put("password", hashedPassword);
+                userValues.put("user_type", "MEMBER");
+                userValues.put("email", member.getEmail());
+                userValues.put("phone", member.getPhone());
+                userValues.put("status", "ACTIVE");
+                
+                long userId = db.insert("users", null, userValues);
+                
+                if (userId == -1) {
+                    Log.e(TAG, "User insertion failed - returned -1");
+                    return "User Creation Failed. Username or Email might already exist.";
+                }
+                Log.d(TAG, "User created successfully with ID: " + userId);
+
+                // 2. Insert into Members Table
+                Log.d(TAG, "Step 2: Inserting into members table");
                 ContentValues memberValues = new ContentValues();
+                memberValues.put("user_id", userId); // Link to users table
                 memberValues.put("full_name", member.getFullName());
                 memberValues.put("email", member.getEmail());
                 memberValues.put("phone", member.getPhone());
@@ -69,43 +98,70 @@ public class MemberDAO {
                 memberValues.put("membership_end_date", member.getMembershipEndDate());
                 memberValues.put("medical_notes", member.getMedicalNotes());
                 memberValues.put("emergency_contact", member.getEmergencyContact());
-                memberValues.put("username", member.getUsername());
-                memberValues.put("password", hashedPassword);
-                memberValues.put("status", member.getStatus());
+                memberValues.put("username", member.getUsername()); // Legacy column, keep for now
+                memberValues.put("password", hashedPassword); // Legacy column, keep for now
+                memberValues.put("status", "ACTIVE"); // Ensure uppercase for consistency with AuthDAO
                 memberValues.put("registration_date", dateFormat.format(new Date()));
 
-                // Insert member
                 long memberId = db.insert("members", null, memberValues);
 
                 if (memberId == -1) {
-                    return "Database Insert Failed (Result -1). Check constraints.";
+                    Log.e(TAG, "Member insertion failed - returned -1");
+                    return "Member Profile Creation Failed.";
                 }
+                Log.d(TAG, "Member created successfully with ID: " + memberId);
 
-                // Prepare Payment values (Auto-record initial payment)
+                // 3. Insert Payment
+                Log.d(TAG, "Step 3: Inserting payment record");
                 ContentValues paymentValues = new ContentValues();
                 paymentValues.put("member_id", memberId);
                 paymentValues.put("amount", member.getMembershipFee());
-                paymentValues.put("payment_date", dateFormat.format(new Date())); // Today
-                paymentValues.put("payment_method", "CASH"); // Default
-                paymentValues.put("status", "COMPLETED"); // Assume paid on registration
+                paymentValues.put("payment_date", dateFormat.format(new Date()));
+                paymentValues.put("payment_method", "CASH");
+                paymentValues.put("status", "COMPLETED");
 
-                // Insert Payment
                 long paymentId = db.insert("payments", null, paymentValues);
 
-                if (paymentId != -1) {
-                    db.setTransactionSuccessful(); // Commit if both succeed
-                    Log.i(TAG, "Member registered with payment: " + member.getUsername());
-                    return "SUCCESS";
-                } else {
+                if (paymentId == -1) {
+                    Log.e(TAG, "Payment insertion failed - returned -1");
                     return "Member Created but Payment Failed.";
                 }
+                Log.d(TAG, "Payment created successfully with ID: " + paymentId);
 
+                // 4. Create Membership Record
+                Log.d(TAG, "Step 4: Inserting membership record");
+                ContentValues membershipValues = new ContentValues();
+                membershipValues.put("member_id", memberId);
+                // Schema uses check constraint: CHECK(membership_type IN ('MONTHLY', 'QUARTERLY', 'HALF_YEARLY', 'YEARLY'))
+                // We default to MONTHLY here to satisfy the constraint, as validation relies on start/end dates
+                membershipValues.put("membership_type", "MONTHLY");
+                membershipValues.put("start_date", member.getMembershipStartDate());
+                membershipValues.put("end_date", member.getMembershipEndDate());
+                membershipValues.put("amount", member.getMembershipFee());
+                membershipValues.put("status", "ACTIVE");
+                
+                long membershipId = db.insert("memberships", null, membershipValues);
+
+                if (membershipId != -1) {
+                    db.setTransactionSuccessful();
+                    Log.i(TAG, "=== Member registered successfully! User ID: " + userId + ", Member ID: " + memberId + " ===");
+                    return "SUCCESS";
+                } else {
+                    Log.e(TAG, "Membership insertion failed - returned -1");
+                    return "Member Created but Membership Record Failed.";
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Exception during transaction", e);
+                throw e;
             } finally {
-                db.endTransaction(); // End Transaction
+                db.endTransaction();
+                Log.d(TAG, "Transaction ended");
             }
 
         } catch (Exception e) {
             Log.e(TAG, "Error registering member: " + e.getMessage(), e);
+            e.printStackTrace();
             return "Error: " + e.getMessage();
         } finally {
             if (db != null && db.isOpen()) {
