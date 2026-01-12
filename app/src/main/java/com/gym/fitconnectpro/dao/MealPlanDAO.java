@@ -32,7 +32,7 @@ public class MealPlanDAO {
 
         try {
             // Simple LIKE query
-            String query = "SELECT * FROM foods WHERE name LIKE ? ORDER BY name ASC LIMIT 50";
+            String query = "SELECT * FROM foods WHERE name LIKE ? ORDER BY name ASC";
             cursor = db.rawQuery(query, new String[]{"%" + keyword + "%"});
 
             if (cursor != null && cursor.moveToFirst()) {

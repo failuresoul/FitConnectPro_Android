@@ -19,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "FitConnectPro.db";
-    private static final int DATABASE_VERSION = 8; // Updated to 8
+    private static final int DATABASE_VERSION = 10; // Updated to 10
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -41,6 +41,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_FOODS = "foods";
     private static final String TABLE_MEAL_PLANS = "trainer_meal_plans";
     private static final String TABLE_MEAL_PLAN_FOODS = "meal_plan_foods";
+    private static final String TABLE_WEIGHT_LOGS = "member_weight_history";
+    private static final String TABLE_DAILY_LOGS = "member_daily_logs";
+    private static final String TABLE_PROGRESS_REPORTS = "member_progress_reports";
 
     // Daily Goals Columns
     private static final String KEY_GOAL_DATE = "goal_date";
@@ -157,6 +160,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             createTables(db);
             insertSampleData(db);
             populateExercises(db); // Add sample exercises
+            seedFoods(db); // Add sample foods for fresh install
+            seedClientData(db); // Seed sample client data for testing
 
             Log.d(TAG, "Database created successfully");
         } catch (Exception e) {
@@ -206,6 +211,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 // Version 8: Add Meal Plan tables and Seed Foods
                 createMealPlanTables(db);
                 seedFoods(db);
+            }
+
+            if (oldVersion < 9) {
+                // Version 9: Ensure Foods are seeded
+                seedFoods(db);
+            }
+
+            if (oldVersion < 10) {
+                // Version 10: Add Progress Tracking Tables
+                createProgressTables(db);
+                seedClientData(db);
             }
 
             // Re-enable foreign keys
@@ -454,6 +470,80 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_DAILY_GOALS_TABLE);
 
         createMealPlanTables(db);
+        createProgressTables(db);
+    }
+    
+    private void createProgressTables(SQLiteDatabase db) {
+        String CREATE_WEIGHT_LOGS = "CREATE TABLE IF NOT EXISTS " + TABLE_WEIGHT_LOGS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_MEMBER_ID + " INTEGER NOT NULL,"
+                + "weight REAL NOT NULL,"
+                + "log_date DATE NOT NULL,"
+                + "notes TEXT,"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id) ON DELETE CASCADE"
+                + ")";
+        db.execSQL(CREATE_WEIGHT_LOGS);
+        
+        String CREATE_DAILY_LOGS = "CREATE TABLE IF NOT EXISTS " + TABLE_DAILY_LOGS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_MEMBER_ID + " INTEGER NOT NULL,"
+                + "log_date DATE NOT NULL,"
+                + "water_intake_ml INTEGER DEFAULT 0,"
+                + "calories_consumed INTEGER DEFAULT 0,"
+                + "workout_duration_minutes INTEGER DEFAULT 0,"
+                + "workout_completed INTEGER DEFAULT 0," // Boolean 0/1
+                + "sleep_hours INTEGER DEFAULT 0,"
+                + "mood TEXT," // Good, Tired, Sore, Energetic
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id) ON DELETE CASCADE"
+                + ")";
+        db.execSQL(CREATE_DAILY_LOGS);
+        
+        String CREATE_REPORTS = "CREATE TABLE IF NOT EXISTS " + TABLE_PROGRESS_REPORTS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_TRAINER_ID + " INTEGER NOT NULL,"
+                + KEY_MEMBER_ID + " INTEGER NOT NULL,"
+                + "report_start_date DATE NOT NULL,"
+                + "report_end_date DATE NOT NULL,"
+                + "generated_date DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "workout_completion_rate REAL,"
+                + "meals_logged_count INTEGER,"
+                + "water_compliance_rate REAL,"
+                + "weight_change REAL,"
+                + "trainer_feedback TEXT,"
+                + "status TEXT DEFAULT 'SENT',"
+                + "FOREIGN KEY(" + KEY_TRAINER_ID + ") REFERENCES " + TABLE_TRAINERS + "(" + KEY_ID + "),"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id) ON DELETE CASCADE"
+                + ")";
+        db.execSQL(CREATE_REPORTS);
+    }
+    
+    private void seedClientData(SQLiteDatabase db) {
+        // Seed some dummy logs for testing visualization
+        // Find first member
+        Cursor cursor = db.rawQuery("SELECT member_id FROM " + TABLE_MEMBERS + " LIMIT 1", null);
+        int memberId = -1;
+        if (cursor != null && cursor.moveToFirst()) {
+            memberId = cursor.getInt(0);
+        }
+        closeCursor(cursor);
+        
+        if (memberId != -1) {
+             // Seed 7 days of Weight Logs
+             db.execSQL("INSERT INTO " + TABLE_WEIGHT_LOGS + " (member_id, weight, log_date) VALUES (" + memberId + ", 80.5, DATE('now', '-6 days'))");
+             db.execSQL("INSERT INTO " + TABLE_WEIGHT_LOGS + " (member_id, weight, log_date) VALUES (" + memberId + ", 80.2, DATE('now', '-4 days'))");
+             db.execSQL("INSERT INTO " + TABLE_WEIGHT_LOGS + " (member_id, weight, log_date) VALUES (" + memberId + ", 79.8, DATE('now', '-2 days'))");
+             db.execSQL("INSERT INTO " + TABLE_WEIGHT_LOGS + " (member_id, weight, log_date) VALUES (" + memberId + ", 79.5, DATE('now', '0 days'))");
+             
+             // Seed 7 days of Daily Logs
+             // Day 1: Perfect
+             db.execSQL("INSERT INTO " + TABLE_DAILY_LOGS + " (member_id, log_date, water_intake_ml, calories_consumed, workout_completed, sleep_hours) VALUES (" + memberId + ", DATE('now', '-6 days'), 2500, 2000, 1, 8)");
+             // Day 2: Missed workout
+             db.execSQL("INSERT INTO " + TABLE_DAILY_LOGS + " (member_id, log_date, water_intake_ml, calories_consumed, workout_completed, sleep_hours) VALUES (" + memberId + ", DATE('now', '-5 days'), 1500, 2200, 0, 6)");
+             // Day 3: Perfect
+             db.execSQL("INSERT INTO " + TABLE_DAILY_LOGS + " (member_id, log_date, water_intake_ml, calories_consumed, workout_completed, sleep_hours) VALUES (" + memberId + ", DATE('now', '-4 days'), 2800, 1950, 1, 7)");
+             // Day 4: Good
+             db.execSQL("INSERT INTO " + TABLE_DAILY_LOGS + " (member_id, log_date, water_intake_ml, calories_consumed, workout_completed, sleep_hours) VALUES (" + memberId + ", DATE('now', '-3 days'), 2000, 2100, 1, 7)");
+        }
     }
     
     private void createMealPlanTables(SQLiteDatabase db) {

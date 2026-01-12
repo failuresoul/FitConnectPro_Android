@@ -274,6 +274,8 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
             loadFragment(SetDailyGoalsFragment.newInstance(), "Set Daily Goals");
         } else if (id == R.id.nav_meals) {
             loadFragment(com.gym.fitconnectpro.fragments.trainer.CreateMealPlanFragment.newInstance(), "Assign Meal Plan");
+        } else if (id == R.id.nav_reports) {
+            loadFragment(com.gym.fitconnectpro.fragments.trainer.ClientProgressFragment.newInstance(), "Client Progress");
         } else if (id == R.id.nav_messages) {
              Toast.makeText(this, "Messages - Coming Soon", Toast.LENGTH_SHORT).show();
         } else if (id == R.id.nav_logout) {

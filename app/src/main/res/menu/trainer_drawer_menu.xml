@@ -25,14 +25,16 @@
 
     <item android:title="Communication">
         <menu>
-            <item
-                android:id="@+id/nav_messages"
-                android:icon="@android:drawable/ic_menu_send"
-                android:title="Messages" />
-            <item
-                android:id="@+id/nav_reports"
-                android:icon="@android:drawable/ic_menu_report_image"
-                android:title="Progress Reports" />
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_messages"
+                    android:icon="@android:drawable/ic_menu_send"
+                    android:title="Messages" />
+                <item
+                    android:id="@+id/nav_reports"
+                    android:icon="@android:drawable/ic_menu_report_image"
+                    android:title="Progress Reports" />
+            </group>
         </menu>
     </item>
 
