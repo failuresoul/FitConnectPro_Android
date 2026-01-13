@@ -1,5 +1,6 @@
 package com.gym.fitconnectpro.dao;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,18 +27,54 @@ public class MemberDashboardDAO {
         Map<String, String> info = new HashMap<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         
-        // Join Members with Trainer Assignments and Trainers
-        // Users -> Members -> Assignments -> Trainers
+        // Try to find member by user_id first
         String query = "SELECT m.member_id, m.full_name as member_name, t.full_name as trainer_name, t.id as trainer_id " +
                 "FROM members m " +
                 "LEFT JOIN trainer_assignments ta ON m.member_id = ta.member_id AND ta.status = 'ACTIVE' " +
                 "LEFT JOIN trainers t ON ta.trainer_id = t.id " +
-                "WHERE m.member_id = ?";
+                "WHERE m.user_id = ?";
         
         Cursor cursor = null;
         try {
             cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
-            if (cursor.moveToFirst()) {
+            
+            // If not found by user_id, try to find by matching username
+            if (!cursor.moveToFirst()) {
+                cursor.close();
+                
+                // Get username from session/users table
+                Cursor userCursor = db.rawQuery("SELECT username FROM users WHERE id = ?", new String[]{String.valueOf(userId)});
+                String username = null;
+                if (userCursor.moveToFirst()) {
+                    username = userCursor.getString(0);
+                }
+                userCursor.close();
+                
+                if (username != null) {
+                    // Try to find member by username
+                    query = "SELECT m.member_id, m.full_name as member_name, t.full_name as trainer_name, t.id as trainer_id " +
+                            "FROM members m " +
+                            "LEFT JOIN trainer_assignments ta ON m.member_id = ta.member_id AND ta.status = 'ACTIVE' " +
+                            "LEFT JOIN trainers t ON ta.trainer_id = t.id " +
+                            "WHERE m.username = ?";
+                    cursor = db.rawQuery(query, new String[]{username});
+                    
+                    // If found, update the member record to set user_id for future queries
+                    if (cursor.moveToFirst()) {
+                        int memberId = cursor.getInt(0);
+                        try {
+                            ContentValues values = new ContentValues();
+                            values.put("user_id", userId);
+                            db.update("members", values, "member_id = ?", new String[]{String.valueOf(memberId)});
+                            Log.d(TAG, "Updated member " + memberId + " with user_id " + userId);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error updating member user_id", e);
+                        }
+                    }
+                }
+            }
+            
+            if (cursor != null && cursor.moveToFirst()) {
                 info.put("member_id", cursor.getString(0));
                 info.put("member_name", cursor.getString(1));
                 info.put("trainer_name", cursor.getString(2) != null ? cursor.getString(2) : "No Trainer Assigned");

@@ -173,8 +173,9 @@ public class ViewWorkoutPlanActivity extends AppCompatActivity {
         
         if (currentPlan != null) {
             // Update UI
-            tvFocusArea.setText(currentPlan.getPlanName());
-            tvInstructions.setText("Follow the exercises below. Stay hydrated."); // Generic as no field in DB
+            // Update UI
+            tvFocusArea.setText(currentPlan.getFocusArea() != null ? currentPlan.getFocusArea() : currentPlan.getPlanName());
+            tvInstructions.setText(currentPlan.getInstructions() != null ? currentPlan.getInstructions() : "Follow the exercises below. Stay hydrated.");
             
             // Allow actions
             btnStartWorkout.setEnabled(true);
@@ -216,10 +217,10 @@ public class ViewWorkoutPlanActivity extends AppCompatActivity {
     
     private void startWorkout() {
         // Opens workout execution screen
-        // "Method: startWorkout() * Opens workout execution screen"
         Toast.makeText(this, "Starting Workout...", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, WorkoutExecutionActivity.class);
         intent.putExtra("PLAN_ID", currentPlan.getId());
+        intent.putExtra("MEMBER_ID", currentPlan.getMemberId());
         startActivity(intent);
     }
     
