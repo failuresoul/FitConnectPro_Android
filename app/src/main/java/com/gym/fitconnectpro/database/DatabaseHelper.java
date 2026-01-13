@@ -48,24 +48,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_PROGRESS_REPORTS = "member_progress_reports";
     private static final String TABLE_MEMBER_MEALS = "member_meals";
     private static final String TABLE_MEMBER_MEAL_ITEMS = "member_meal_items";
-        db.execSQL(CREATE_MEMBER_MEALS);
-
-        String CREATE_MEMBER_MEAL_ITEMS = "CREATE TABLE IF NOT EXISTS " + TABLE_MEMBER_MEAL_ITEMS + "("
-                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + "meal_id INTEGER NOT NULL,"
-                + "food_id INTEGER NOT NULL,"
-                + "quantity REAL NOT NULL,"
-                + "FOREIGN KEY(meal_id) REFERENCES " + TABLE_MEMBER_MEALS + "(" + KEY_ID + ") ON DELETE CASCADE,"
-                + "FOREIGN KEY(food_id) REFERENCES " + TABLE_FOODS + "(" + KEY_ID + ")"
-                + ")";
-        db.execSQL(CREATE_MEMBER_MEAL_ITEMS);
-        Log.d(TAG, "Member meal tables created successfully");
-    }
-
-    // Table Names
-    private static final String TABLE_USERS = "users";
-    private static final String TABLE_MEMBERS = "members";
-    private static final String TABLE_TRAINERS = "trainers";
     private static final String TABLE_MEMBERSHIPS = "memberships";
     private static final String TABLE_TRAINER_ASSIGNMENTS = "trainer_assignments";
     private static final String TABLE_PAYMENTS = "payments";
