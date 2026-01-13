@@ -19,7 +19,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "FitConnectPro.db";
-    private static final int DATABASE_VERSION = 14; // Updated to 14 to retry creation of session tables
+    private static final int DATABASE_VERSION = 16; // Updated to 16 to add member_meals
+
+    // Table Names
+    private static final String TABLE_USERS = "users";
+    private static final String TABLE_MEMBERS = "members";
+    private static final String TABLE_TRAINERS = "trainers";
+    private static final String TABLE_MEMBERSHIPS = "memberships";
+    private static final String TABLE_TRAINER_ASSIGNMENTS = "trainer_assignments";
+    private static final String TABLE_PAYMENTS = "payments";
+    private static final String TABLE_ATTENDANCE = "attendance";
+    private static final String TABLE_APPLICATIONS = "applications";
+    private static final String TABLE_SALARIES = "salaries";
+    private static final String TABLE_MESSAGES = "messages";
+    private static final String TABLE_WORKOUT_PLANS = "workout_plans";
+    private static final String TABLE_WORKOUT_SESSIONS = "workout_sessions";
+    private static final String TABLE_WORKOUT_LOGS = "workout_logs";
+    
+    // NEW TABLES
+    private static final String TABLE_EXERCISES = "exercises";
+    private static final String TABLE_PLAN_EXERCISES = "plan_exercises";
+    private static final String TABLE_DAILY_GOALS = "trainer_daily_goals";
+    private static final String TABLE_FOODS = "foods";
+    private static final String TABLE_MEAL_PLANS = "trainer_meal_plans";
+    private static final String TABLE_MEAL_PLAN_FOODS = "meal_plan_foods";
+    private static final String TABLE_WEIGHT_LOGS = "member_weight_history";
+    private static final String TABLE_DAILY_LOGS = "member_daily_logs";
+    private static final String TABLE_PROGRESS_REPORTS = "member_progress_reports";
+    private static final String TABLE_MEMBER_MEALS = "member_meals";
+    private static final String TABLE_MEMBER_MEAL_ITEMS = "member_meal_items";
+        db.execSQL(CREATE_MEMBER_MEALS);
+
+        String CREATE_MEMBER_MEAL_ITEMS = "CREATE TABLE IF NOT EXISTS " + TABLE_MEMBER_MEAL_ITEMS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "meal_id INTEGER NOT NULL,"
+                + "food_id INTEGER NOT NULL,"
+                + "quantity REAL NOT NULL,"
+                + "FOREIGN KEY(meal_id) REFERENCES " + TABLE_MEMBER_MEALS + "(" + KEY_ID + ") ON DELETE CASCADE,"
+                + "FOREIGN KEY(food_id) REFERENCES " + TABLE_FOODS + "(" + KEY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_MEMBER_MEAL_ITEMS);
+        Log.d(TAG, "Member meal tables created successfully");
+    }
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -239,6 +280,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                  // Using version 14 to force a re-check if version 13 upgrade failed silently
                  createWorkoutSessionsTable(db);
                  createWorkoutLogsTable(db);
+            }
+            
+            if (oldVersion < 15) {
+                 // Version 15: Add water_logs table
+                 createWaterLogsTable(db);
             }
 
             // Re-enable foreign keys
@@ -493,6 +539,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createProgressTables(db);
         createWorkoutSessionsTable(db);
         createWorkoutLogsTable(db);
+        createWaterLogsTable(db);
     }
 
     private void createWorkoutSessionsTable(SQLiteDatabase db) {
@@ -528,6 +575,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY(" + KEY_EXERCISE_ID + ") REFERENCES " + TABLE_EXERCISES + "(" + KEY_ID + ")"
                 + ")";
         db.execSQL(CREATE_WORKOUT_LOGS_TABLE);
+    }
+    
+    private void createWaterLogsTable(SQLiteDatabase db) {
+        String CREATE_WATER_LOGS_TABLE = "CREATE TABLE IF NOT EXISTS water_logs("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "member_id INTEGER NOT NULL,"
+                + "amount_ml INTEGER NOT NULL,"
+                + "log_time DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "created_at DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(member_id) REFERENCES members(member_id)"
+                + ")";
+        db.execSQL(CREATE_WATER_LOGS_TABLE);
+        Log.d(TAG, "Water logs table created successfully");
     }
     
     private void createProgressTables(SQLiteDatabase db) {

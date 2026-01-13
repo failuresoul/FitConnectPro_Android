@@ -39,10 +39,6 @@ public class WorkoutLogActivity extends AppCompatActivity {
         // Setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
 
         // Initialize
         session = Session.getInstance(this);

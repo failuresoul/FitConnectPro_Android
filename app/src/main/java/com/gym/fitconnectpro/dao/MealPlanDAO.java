@@ -184,4 +184,74 @@ public class MealPlanDAO {
         }
         return foods;
     }
+
+    /**
+     * Get all meal plans for a specific date
+     */
+    public List<MealPlan> getMemberMealPlansForDate(int memberId, String date) {
+        List<MealPlan> plans = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String query = "SELECT * FROM trainer_meal_plans WHERE member_id = ? AND plan_date = ? ORDER BY CASE meal_type WHEN 'Breakfast' THEN 1 WHEN 'Lunch' THEN 2 WHEN 'Dinner' THEN 3 WHEN 'Snacks' THEN 4 END";
+        Cursor cursor = null;
+
+        try {
+            cursor = db.rawQuery(query, new String[]{String.valueOf(memberId), date});
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    MealPlan plan = new MealPlan();
+                    plan.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+                    plan.setTrainerId(cursor.getInt(cursor.getColumnIndexOrThrow("trainer_id")));
+                    plan.setMemberId(cursor.getInt(cursor.getColumnIndexOrThrow("member_id")));
+                    plan.setPlanDate(cursor.getString(cursor.getColumnIndexOrThrow("plan_date")));
+                    plan.setMealType(cursor.getString(cursor.getColumnIndexOrThrow("meal_type")));
+                    plan.setInstructions(cursor.getString(cursor.getColumnIndexOrThrow("instructions")));
+                    plan.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow("created_at")));
+
+                    // Fetch foods for this plan
+                    plan.setFoods(getFoodsForPlan(plan.getId()));
+
+                    plans.add(plan);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching meal plans for date", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return plans;
+    }
+
+    /**
+     * Get specific meal type plan for a date
+     */
+    public MealPlan getMealPlanByType(int memberId, String date, String mealType) {
+        MealPlan plan = null;
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String query = "SELECT * FROM trainer_meal_plans WHERE member_id = ? AND plan_date = ? AND meal_type = ? LIMIT 1";
+        Cursor cursor = null;
+
+        try {
+            cursor = db.rawQuery(query, new String[]{String.valueOf(memberId), date, mealType});
+            if (cursor != null && cursor.moveToFirst()) {
+                plan = new MealPlan();
+                plan.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+                plan.setTrainerId(cursor.getInt(cursor.getColumnIndexOrThrow("trainer_id")));
+                plan.setMemberId(cursor.getInt(cursor.getColumnIndexOrThrow("member_id")));
+                plan.setPlanDate(cursor.getString(cursor.getColumnIndexOrThrow("plan_date")));
+                plan.setMealType(cursor.getString(cursor.getColumnIndexOrThrow("meal_type")));
+                plan.setInstructions(cursor.getString(cursor.getColumnIndexOrThrow("instructions")));
+                plan.setCreatedAt(cursor.getString(cursor.getColumnIndexOrThrow("created_at")));
+
+                // Fetch foods for this plan
+                plan.setFoods(getFoodsForPlan(plan.getId()));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching meal plan by type", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return plan;
+    }
 }

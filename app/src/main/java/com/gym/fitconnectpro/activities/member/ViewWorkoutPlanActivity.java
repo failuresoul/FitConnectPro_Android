@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -11,12 +12,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.navigation.NavigationView;
 import com.gym.fitconnectpro.R;
+import com.gym.fitconnectpro.activities.LoginActivity;
 import com.gym.fitconnectpro.adapters.WorkoutPlanExerciseAdapter;
 import com.gym.fitconnectpro.dao.TrainerDAO;
 import com.gym.fitconnectpro.dao.WorkoutDAO;
@@ -32,9 +39,11 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class ViewWorkoutPlanActivity extends AppCompatActivity {
+public class ViewWorkoutPlanActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "ViewWorkoutPlan";
+    
+    private DrawerLayout drawerLayout;
     
     private TextView tvPlanDate, tvTrainerName, tvFocusArea, tvInstructions;
     private TextView tvDuration, tvCalories;
@@ -80,10 +89,17 @@ public class ViewWorkoutPlanActivity extends AppCompatActivity {
     private void initViews() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Workout Plan");
-        }
+        
+        // Setup drawer
+        drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar,
+                R.string.open_drawer, R.string.close_drawer);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
         
         tvPlanDate = findViewById(R.id.tvPlanDate);
         tvTrainerName = findViewById(R.id.tvTrainerName);
@@ -247,6 +263,41 @@ public class ViewWorkoutPlanActivity extends AppCompatActivity {
             finish();
         } else {
             Toast.makeText(this, "Error updating status", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        
+        if (id == R.id.nav_dashboard) {
+            finish(); // Return to dashboard
+        } else if (id == R.id.nav_workouts) {
+            // Already here, just close drawer
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        } else if (id == R.id.nav_log_workout) {
+            startActivity(new Intent(this, WorkoutLogActivity.class));
+        } else if (id == R.id.nav_meals) {
+            startActivity(new Intent(this, ViewMealPlanActivity.class));
+        } else if (id == R.id.nav_water) {
+            startActivity(new Intent(this, WaterTrackerActivity.class));
+        } else if (id == R.id.nav_logout) {
+            session.logout();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        }
+        
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
     }
     

@@ -338,6 +338,14 @@ public class MemberDashboardActivity extends AppCompatActivity implements Naviga
             // Log Workout - shows today's workout session/logs
             Intent intent = new Intent(this, WorkoutLogActivity.class);
             startActivity(intent);
+        } else if (id == R.id.nav_meals) {
+            // My Meal Plans
+            Intent intent = new Intent(this, ViewMealPlanActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_water) {
+            // Water Tracker
+            Intent intent = new Intent(this, WaterTrackerActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_logout) {
             session.logout();
             startActivity(new Intent(this, LoginActivity.class));

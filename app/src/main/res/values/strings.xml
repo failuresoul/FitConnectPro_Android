@@ -135,4 +135,7 @@
     <string name="assignment_failed">Failed to assign trainer</string>
     <string name="trainer_at_capacity">Trainer has reached maximum capacity</string>
     <string name="member_already_assigned">Member is already assigned to this trainer</string>
+    
+    <!-- Meal Plan -->
+    <string name="meal_type_tabs">Meal type tabs</string>
 </resources>
