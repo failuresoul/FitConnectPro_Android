@@ -19,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "FitConnectPro.db";
-    private static final int DATABASE_VERSION = 16; // Updated to 16 to add member_meals
+    private static final int DATABASE_VERSION = 22; // Updated to 22 for Friend Requests
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -48,6 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_PROGRESS_REPORTS = "member_progress_reports";
     private static final String TABLE_MEMBER_MEALS = "member_meals";
     private static final String TABLE_MEMBER_MEAL_ITEMS = "member_meal_items";
+    private static final String TABLE_MEMBER_DAILY_LOGS = "member_daily_logs";
 
     
 
@@ -251,14 +252,76 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                  createWaterLogsTable(db);
             }
 
-            // Re-enable foreign keys
-            if (!db.isReadOnly()) {
-                 db.execSQL("PRAGMA foreign_keys=ON;");
+            if (oldVersion < 16) {
+                createMemberMealTables(db);
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Error upgrading database", e);
+            
+            if (oldVersion < 17) {
+                 try {
+                     // Check if column exists first to avoid error if re-running
+                     Cursor cursor = db.rawQuery("PRAGMA table_info(" + TABLE_MEMBER_MEALS + ")", null);
+                     boolean columnExists = false;
+                     if (cursor != null) {
+                        while(cursor.moveToNext()){
+                            String columnName = cursor.getString(cursor.getColumnIndex("name"));
+                            if("meal_time".equals(columnName)){
+                                columnExists = true;
+                                break;
+                            }
+                        }
+                        cursor.close();
+                     }
+                     
+                     if (!columnExists) {
+                        db.execSQL("ALTER TABLE " + TABLE_MEMBER_MEALS + " ADD COLUMN meal_time TEXT");
+                        Log.d(TAG, "Added meal_time column to member_meals");
+                     }
+                 } catch (Exception e) {
+                     Log.e(TAG, "Error adding meal_time column", e);
+                 }
+            }
+            
+        if (oldVersion < 19) {
+            // Version 19: Clearly broken/partial data and force re-seed
+            try {
+                db.execSQL("DELETE FROM " + TABLE_FOODS);
+                seedFoods(db);
+                Log.d(TAG, "Forced re-seed of foods in v19");
+            } catch (Exception e) {
+                Log.e(TAG, "Error re-seeding foods", e);
+            }
         }
+        
+        if (oldVersion < 21) {
+            createDailyLogsTable(db);
+        }
+        
+        if (oldVersion < 22) {
+            createFriendRequestsTable(db);
+        }
+
+        // Re-enable foreign keys
+        if (!db.isReadOnly()) {
+             db.execSQL("PRAGMA foreign_keys=ON;");
+        }
+    } catch (Exception e) {
+        Log.e(TAG, "Error upgrading database", e);
     }
+}
+
+private void createDailyLogsTable(SQLiteDatabase db) {
+    String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_MEMBER_DAILY_LOGS + "("
+            + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_MEMBER_ID + " INTEGER NOT NULL,"
+            + "log_date DATE NOT NULL,"
+            + "calories_consumed INTEGER DEFAULT 0,"
+            + "water_intake INTEGER DEFAULT 0,"
+            + "steps_count INTEGER DEFAULT 0,"
+            + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id)"
+            + ")";
+    db.execSQL(CREATE_TABLE);
+    Log.d(TAG, "Member daily logs table created");
+}
 
     @Override
     public void onOpen(SQLiteDatabase db) {
@@ -504,6 +567,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createWorkoutSessionsTable(db);
         createWorkoutLogsTable(db);
         createWaterLogsTable(db);
+        createFriendRequestsTable(db);
     }
 
     private void createWorkoutSessionsTable(SQLiteDatabase db) {
@@ -553,6 +617,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_WATER_LOGS_TABLE);
         Log.d(TAG, "Water logs table created successfully");
     }
+
+    private void createFriendRequestsTable(SQLiteDatabase db) {
+        String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS friend_requests("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "sender_id INTEGER NOT NULL,"
+                + "receiver_id INTEGER NOT NULL,"
+                + "status TEXT DEFAULT 'PENDING' CHECK(status IN ('PENDING', 'ACCEPTED', 'REJECTED')),"
+                + "timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(sender_id) REFERENCES members(member_id) ON DELETE CASCADE,"
+                + "FOREIGN KEY(receiver_id) REFERENCES members(member_id) ON DELETE CASCADE"
+                + ")";
+        db.execSQL(CREATE_TABLE);
+        Log.d(TAG, "Friend requests table created successfully");
+    }
+
     
     private void createProgressTables(SQLiteDatabase db) {
         String CREATE_WEIGHT_LOGS = "CREATE TABLE IF NOT EXISTS " + TABLE_WEIGHT_LOGS + "("
@@ -627,6 +706,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
     
+
+
     private void createMealPlanTables(SQLiteDatabase db) {
         // Foods Table
         String CREATE_FOODS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_FOODS + "("
@@ -664,6 +745,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY(food_id) REFERENCES " + TABLE_FOODS + "(" + KEY_ID + ")"
                 + ")";
         db.execSQL(CREATE_MEAL_PLAN_FOODS);
+    }
+    
+
+
+    private void createMemberMealTables(SQLiteDatabase db) {
+        String CREATE_MEMBER_MEALS = "CREATE TABLE IF NOT EXISTS " + TABLE_MEMBER_MEALS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_MEMBER_ID + " INTEGER NOT NULL,"
+                + "meal_type TEXT NOT NULL,"
+                + "meal_date DATE NOT NULL,"
+                + "meal_time TEXT," // Added in v17
+                + "notes TEXT,"
+                + "total_calories INTEGER,"
+                + "total_protein REAL,"
+                + "total_carbs REAL,"
+                + "total_fats REAL,"
+                + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id)"
+                + ")";
+        db.execSQL(CREATE_MEMBER_MEALS);
+
+        String CREATE_MEMBER_MEAL_ITEMS = "CREATE TABLE IF NOT EXISTS " + TABLE_MEMBER_MEAL_ITEMS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "meal_id INTEGER NOT NULL,"
+                + "food_id INTEGER NOT NULL,"
+                + "quantity REAL NOT NULL,"
+                + "FOREIGN KEY(meal_id) REFERENCES " + TABLE_MEMBER_MEALS + "(" + KEY_ID + ") ON DELETE CASCADE,"
+                + "FOREIGN KEY(food_id) REFERENCES " + TABLE_FOODS + "(" + KEY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_MEMBER_MEAL_ITEMS);
+        Log.d(TAG, "Member meal tables created successfully");
     }
     
     private void seedFoods(SQLiteDatabase db) {

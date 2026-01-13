@@ -342,9 +342,29 @@ public class MemberDashboardActivity extends AppCompatActivity implements Naviga
             // My Meal Plans
             Intent intent = new Intent(this, ViewMealPlanActivity.class);
             startActivity(intent);
+        } else if (id == R.id.nav_log_meal) {
+             // Log Meal
+             Intent intent = new Intent(this, LogMealActivity.class);
+             startActivity(intent);
         } else if (id == R.id.nav_water) {
             // Water Tracker
             Intent intent = new Intent(this, WaterTrackerActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_progress) {
+            // My Progress
+            Intent intent = new Intent(this, MemberProgressActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_friends) {
+            // My Friends
+            Intent intent = new Intent(this, FriendsActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_messages) {
+            // Messages
+            Intent intent = new Intent(this, ConversationsActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_social) {
+            // Member Directory
+            Intent intent = new Intent(this, MemberDirectoryActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_logout) {
             session.logout();

@@ -58,9 +58,74 @@ public class MealLogDAO {
     }
 
     /**
+     * Get all foods for Combo Box
+     */
+    public List<Food> getAllFoods() {
+        List<Food> foods = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
+
+        try {
+            String query = "SELECT * FROM foods ORDER BY name ASC";
+            cursor = db.rawQuery(query, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    Food food = new Food();
+                    food.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+                    food.setName(cursor.getString(cursor.getColumnIndexOrThrow("name")));
+                    food.setCalories(cursor.getInt(cursor.getColumnIndexOrThrow("calories")));
+                    food.setProtein(cursor.getDouble(cursor.getColumnIndexOrThrow("protein")));
+                    food.setCarbs(cursor.getDouble(cursor.getColumnIndexOrThrow("carbs")));
+                    food.setFats(cursor.getDouble(cursor.getColumnIndexOrThrow("fats")));
+                    food.setServingUnit(cursor.getString(cursor.getColumnIndexOrThrow("serving_unit")));
+                    foods.add(food);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching all foods", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return foods;
+    }
+
+    /**
+     * Get today's logged meals
+     */
+    public List<com.gym.fitconnectpro.models.MealLogEntry> getTodayMeals(int memberId, String date) {
+        List<com.gym.fitconnectpro.models.MealLogEntry> meals = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = null;
+
+        try {
+            String query = "SELECT id, meal_type, meal_time, total_calories, notes FROM member_meals WHERE member_id = ? AND meal_date = ? ORDER BY id DESC";
+            cursor = db.rawQuery(query, new String[]{String.valueOf(memberId), date});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    com.gym.fitconnectpro.models.MealLogEntry meal = new com.gym.fitconnectpro.models.MealLogEntry();
+                    meal.setId(cursor.getInt(0));
+                    meal.setMealType(cursor.getString(1));
+                    meal.setMealTime(cursor.getString(2));
+                    meal.setTotalCalories(cursor.getInt(3));
+                    meal.setNotes(cursor.getString(4));
+                    meals.add(meal);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error fetching today's meals", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return meals;
+    }
+
+
+    /**
      * Log a meal with items and update daily totals
      */
-    public boolean logMeal(int memberId, String date, String mealType, List<MealPlanFood> items, String notes) {
+    public boolean logMeal(int memberId, String date, String mealTime, String mealType, List<MealPlanFood> items, String notes) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         
@@ -86,6 +151,7 @@ public class MealLogDAO {
             mealValues.put("member_id", memberId);
             mealValues.put("meal_type", mealType);
             mealValues.put("meal_date", date);
+            mealValues.put("meal_time", mealTime);
             mealValues.put("notes", notes);
             mealValues.put("total_calories", totalCalories);
             mealValues.put("total_protein", totalProtein);

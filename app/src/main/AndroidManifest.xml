@@ -112,6 +112,17 @@
             android:exported="false" />
 
         <activity
+            android:name=".activities.member.MemberProgressActivity"
+            android:label="My Progress"
+            android:theme="@style/Theme.FitConnectPro.NoActionBar"
+            android:parentActivityName=".activities.member.MemberDashboardActivity"
+            android:exported="false">
+             <meta-data
+                 android:name="android.support.PARENT_ACTIVITY"
+                 android:value=".activities.member.MemberDashboardActivity" />
+         </activity>
+
+        <activity
             android:name=".activities.member.ViewWorkoutPlanActivity"
             android:label="Workout Plan"
             android:theme="@style/Theme.FitConnectPro.NoActionBar"
@@ -155,15 +166,26 @@
                   android:value=".activities.member.MemberDashboardActivity" />
          </activity>
 
+         <activity
+             android:name=".activities.member.LogMealActivity"
+             android:label="Log Meal"
+             android:theme="@style/Theme.FitConnectPro.NoActionBar"
+             android:parentActivityName=".activities.member.ViewMealPlanActivity"
+             android:exported="false">
+              <meta-data
+                  android:name="android.support.PARENT_ACTIVITY"
+                  android:value=".activities.member.ViewMealPlanActivity" />
+          </activity>
+
         <activity
-            android:name=".activities.member.LogMealActivity"
-            android:label="Log Meal"
+            android:name=".activities.member.MemberDirectoryActivity"
+            android:label="Member Directory"
             android:theme="@style/Theme.FitConnectPro.NoActionBar"
-            android:parentActivityName=".activities.member.ViewMealPlanActivity"
-            android:exported="false">
+            android:exported="false"
+            android:parentActivityName=".activities.member.MemberDashboardActivity">
              <meta-data
                  android:name="android.support.PARENT_ACTIVITY"
-                 android:value=".activities.member.ViewMealPlanActivity" />
+                 android:value=".activities.member.MemberDashboardActivity" />
          </activity>
 
         <activity
@@ -171,6 +193,39 @@
             android:label="Execute Workout"
             android:theme="@style/Theme.FitConnectPro.NoActionBar"
             android:exported="false" />
+         <activity
+             android:name=".activities.member.FriendsActivity"
+             android:label="My Friends"
+             android:theme="@style/Theme.FitConnectPro.NoActionBar"
+             android:exported="false"
+             android:parentActivityName=".activities.member.MemberDashboardActivity">
+              <meta-data
+                  android:name="android.support.PARENT_ACTIVITY"
+                  android:value=".activities.member.MemberDashboardActivity" />
+          </activity>
+
+        <activity
+            android:name=".activities.member.ConversationsActivity"
+            android:label="Messages"
+            android:theme="@style/Theme.FitConnectPro.NoActionBar"
+            android:exported="false"
+            android:parentActivityName=".activities.member.MemberDashboardActivity">
+             <meta-data
+                 android:name="android.support.PARENT_ACTIVITY"
+                 android:value=".activities.member.MemberDashboardActivity" />
+         </activity>
+
+        <activity
+            android:name=".activities.member.ChatActivity"
+            android:label="Chat"
+            android:theme="@style/Theme.FitConnectPro.NoActionBar"
+            android:exported="false"
+            android:parentActivityName=".activities.member.ConversationsActivity">
+             <meta-data
+                 android:name="android.support.PARENT_ACTIVITY"
+                 android:value=".activities.member.ConversationsActivity" />
+         </activity>
+
     </application>
 
 </manifest>

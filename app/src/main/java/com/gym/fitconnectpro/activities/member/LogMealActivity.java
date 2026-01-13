@@ -47,10 +47,10 @@ public class LogMealActivity extends AppCompatActivity {
     private int memberId;
     
     private TextView tvDate;
+    private TextView tvTime; // Time View
     private Spinner spinnerMealType;
-    private EditText etSearchFood;
-    private ImageButton btnSearch;
-    private RecyclerView rvSearchResults;
+    // AutoCompleteTextView declared above as actvFoodSearch
+    // Removed unused search views
     private RecyclerView rvAddedItems;
     private TextInputEditText etNotes;
     private TextView tvTotalCalories, tvTotalMacros;
@@ -58,11 +58,17 @@ public class LogMealActivity extends AppCompatActivity {
     
     private List<MealPlanFood> addedItems = new ArrayList<>();
     private AddedItemsAdapter addedItemsAdapter;
-    private SearchResultsAdapter searchResultsAdapter;
+    // Removed searchResultsAdapter
     
     private Calendar selectedDate = Calendar.getInstance();
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
     private SimpleDateFormat dbDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+    private android.widget.AutoCompleteTextView actvFoodSearch;
+    private List<Food> allFoods;
+
+    private RecyclerView rvTodayMeals;
+    private TodayMealsAdapter todayMealsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,41 +76,25 @@ public class LogMealActivity extends AppCompatActivity {
         setContentView(R.layout.activity_log_meal);
         
         session = Session.getInstance(this);
-        if (!session.isLoggedIn()) {
-            finish();
-            return;
-        }
-
-        // Fetch Member ID using User ID
+        mealLogDAO = new MealLogDAO(this);
+        
+        // Fetch Member & Init Views
         MemberDashboardDAO dashboardDAO = new MemberDashboardDAO(this);
         int userId = session.getUserId();
-        java.util.Map<String, String> memberInfo = dashboardDAO.getMemberHeaderInfo(userId);
-        
-        if (memberInfo != null && memberInfo.containsKey("member_id")) {
-            memberId = Integer.parseInt(memberInfo.get("member_id"));
-        } else {
-            Toast.makeText(this, "Error loading member profile", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-        
-        mealLogDAO = new MealLogDAO(this);
+        var memberInfo = dashboardDAO.getMemberHeaderInfo(userId);
+        if (memberInfo != null) memberId = Integer.parseInt(memberInfo.get("member_id"));
         
         initViews();
         setupListeners();
+        loadAllFoods();
+        loadTodayMeals(); // NEW: Load history
         
-        // Pass meal type from intent if available
-        String preSelectedType = getIntent().getStringExtra("MEAL_TYPE");
-        if (preSelectedType != null) {
+        // Handle Intent
+        String type = getIntent().getStringExtra("MEAL_TYPE");
+        if (type != null) {
             String[] types = getResources().getStringArray(R.array.meal_types);
-            for (int i = 0; i < types.length; i++) {
-                if (types[i].equalsIgnoreCase(preSelectedType)) {
-                    spinnerMealType.setSelection(i);
-                    break;
-                }
-            }
+            for(int i=0; i<types.length; i++) if(types[i].equalsIgnoreCase(type)) spinnerMealType.setSelection(i);
         }
-        
         updateDateDisplay();
     }
 
@@ -117,59 +107,84 @@ public class LogMealActivity extends AppCompatActivity {
         }
         
         tvDate = findViewById(R.id.tvDate);
+        tvTime = findViewById(R.id.tvTime);
         spinnerMealType = findViewById(R.id.spinnerMealType);
-        etSearchFood = findViewById(R.id.etSearchFood);
-        btnSearch = findViewById(R.id.btnSearch);
-        rvSearchResults = findViewById(R.id.rvSearchResults);
+        
+        // AutoCompleteTextView
+        actvFoodSearch = findViewById(R.id.actvFoodSearch);
+        
         rvAddedItems = findViewById(R.id.rvAddedItems);
+        rvTodayMeals = findViewById(R.id.rvTodayMeals); // NEW
+        
         etNotes = findViewById(R.id.etNotes);
         tvTotalCalories = findViewById(R.id.tvTotalCalories);
         tvTotalMacros = findViewById(R.id.tvTotalMacros);
         btnSaveMeal = findViewById(R.id.btnSaveMeal);
         
-        // Setup Spinner
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.meal_types, android.R.layout.simple_spinner_item);
+        // Setup Meal Type Spinner
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.meal_types, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMealType.setAdapter(adapter);
         
-        // Setup RecyclerViews
-        rvSearchResults.setLayoutManager(new LinearLayoutManager(this));
+        // Setup Added Items List
         rvAddedItems.setLayoutManager(new LinearLayoutManager(this));
-        
-        searchResultsAdapter = new SearchResultsAdapter();
-        rvSearchResults.setAdapter(searchResultsAdapter);
-        
         addedItemsAdapter = new AddedItemsAdapter();
         rvAddedItems.setAdapter(addedItemsAdapter);
+
+        // Setup History List
+        rvTodayMeals.setLayoutManager(new LinearLayoutManager(this));
+        todayMealsAdapter = new TodayMealsAdapter(new ArrayList<>());
+        rvTodayMeals.setAdapter(todayMealsAdapter);
+        
+        updateTimeDisplay();
     }
     
     private void setupListeners() {
-        btnSearch.setOnClickListener(v -> performSearch());
+        tvTime.setOnClickListener(v -> showTimePicker());
+        btnSaveMeal.setOnClickListener(v -> saveMeal());
         
-        etSearchFood.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                performSearch();
-                return true;
-            }
-            return false;
+        actvFoodSearch.setOnItemClickListener((parent, view, position, id) -> {
+            Food selectedFood = (Food) parent.getItemAtPosition(position);
+            addFoodItem(selectedFood);
+            actvFoodSearch.setText("");
         });
         
-        btnSaveMeal.setOnClickListener(v -> saveMeal());
+        actvFoodSearch.setOnClickListener(v -> actvFoodSearch.showDropDown());
+    }
+
+    private void loadTodayMeals() {
+        if (mealLogDAO == null) return;
+        String date = dbDateFormat.format(selectedDate.getTime());
+        List<com.gym.fitconnectpro.models.MealLogEntry> meals = mealLogDAO.getTodayMeals(memberId, date);
+        todayMealsAdapter.setMeals(meals);
     }
     
-    private void performSearch() {
-        String query = etSearchFood.getText().toString().trim();
-        if (!query.isEmpty()) {
-            List<Food> results = mealLogDAO.searchFoods(query);
-            searchResultsAdapter.setFoods(results);
-            if (results.isEmpty()) {
-                Toast.makeText(this, "No foods found", Toast.LENGTH_SHORT).show();
-                rvSearchResults.setVisibility(View.GONE);
-            } else {
-                rvSearchResults.setVisibility(View.VISIBLE);
-            }
-        }
+    // ... (rest of methods)
+
+
+
+    private void showTimePicker() {
+        int hour = selectedDate.get(Calendar.HOUR_OF_DAY);
+        int minute = selectedDate.get(Calendar.MINUTE);
+        
+        android.app.TimePickerDialog timePickerDialog = new android.app.TimePickerDialog(this,
+                (view, hourOfDay, minute1) -> {
+                    selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    selectedDate.set(Calendar.MINUTE, minute1);
+                    updateTimeDisplay();
+                }, hour, minute, false);
+        timePickerDialog.show();
+    }
+    
+    private void updateTimeDisplay() {
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        tvTime.setText(timeFormat.format(selectedDate.getTime()));
+    }
+
+    private void loadAllFoods() {
+        allFoods = mealLogDAO.getAllFoods();
+        ArrayAdapter<Food> foodAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, allFoods);
+        actvFoodSearch.setAdapter(foodAdapter);
     }
     
     private void addFoodItem(Food food) {
@@ -183,9 +198,7 @@ public class LogMealActivity extends AppCompatActivity {
         addedItemsAdapter.notifyItemInserted(addedItems.size() - 1);
         updateTotals();
         
-        // Clear search
-        etSearchFood.setText("");
-        rvSearchResults.setVisibility(View.GONE);
+        // Clear search is handled in OnItemClickListener now
         Toast.makeText(this, food.getName() + " added", Toast.LENGTH_SHORT).show();
     }
     
@@ -214,23 +227,41 @@ public class LogMealActivity extends AppCompatActivity {
                 "P: %.1fg  C: %.1fg  F: %.1fg", prot, carbs, fats));
     }
     
+
+
     private void saveMeal() {
-        if (addedItems.isEmpty()) {
-            Toast.makeText(this, "Add at least one food item", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        String date = dbDateFormat.format(selectedDate.getTime());
-        String type = spinnerMealType.getSelectedItem().toString();
-        String notes = etNotes.getText() != null ? etNotes.getText().toString() : "";
-        
-        boolean success = mealLogDAO.logMeal(memberId, date, type, addedItems, notes);
-        
-        if (success) {
-            Toast.makeText(this, "Meal logged successfully!", Toast.LENGTH_LONG).show();
-            finish();
-        } else {
-            Toast.makeText(this, "Failed to log meal", Toast.LENGTH_SHORT).show();
+        try {
+            if (addedItems.isEmpty()) {
+                Toast.makeText(this, "Add at least one food item", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            String date = dbDateFormat.format(selectedDate.getTime());
+            SimpleDateFormat timeFormatStr = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            String time = timeFormatStr.format(selectedDate.getTime());
+            
+            String type = spinnerMealType.getSelectedItem().toString();
+            String notes = etNotes.getText() != null ? etNotes.getText().toString() : "";
+            
+            boolean success = mealLogDAO.logMeal(memberId, date, time, type, addedItems, notes);
+            
+            if (success) {
+                Toast.makeText(this, "Meal logged!", Toast.LENGTH_SHORT).show();
+                // Reset UI
+                addedItems.clear();
+                addedItemsAdapter.notifyDataSetChanged();
+                updateTotals();
+                etNotes.setText("");
+                
+                // Refresh History
+                loadTodayMeals();
+            } else {
+                Toast.makeText(this, "Failed to log meal (DB Error)", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            android.util.Log.e("LogMealActivity", "Error saving meal", e);
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 
@@ -245,55 +276,7 @@ public class LogMealActivity extends AppCompatActivity {
     }
 
     // --- Adapters ---
-    
-    // Search Results Adapter
-    class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdapter.ViewHolder> {
-        private List<Food> foods = new ArrayList<>();
 
-        void setFoods(List<Food> foods) {
-            this.foods = foods;
-            notifyDataSetChanged();
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_meal_log_food, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Food food = foods.get(position);
-            holder.tvName.setText(food.getName());
-            holder.tvUnit.setText(food.getServingUnit());
-            holder.tvCalories.setText(food.getCalories() + " cal");
-            holder.layoutQuantity.setVisibility(View.GONE);
-            
-            holder.btnAdd.setOnClickListener(v -> addFoodItem(food));
-        }
-
-        @Override
-        public int getItemCount() {
-            return foods.size();
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            TextView tvName, tvUnit, tvCalories;
-            ImageButton btnAdd;
-            LinearLayout layoutQuantity;
-
-            ViewHolder(View itemView) {
-                super(itemView);
-                tvName = itemView.findViewById(R.id.tvFoodName);
-                tvUnit = itemView.findViewById(R.id.tvServingUnit);
-                tvCalories = itemView.findViewById(R.id.tvCalories);
-                btnAdd = itemView.findViewById(R.id.btnAddOrRemove);
-                layoutQuantity = itemView.findViewById(R.id.layoutQuantity);
-            }
-        }
-    }
     
     // Added Items Adapter (with Quantity Edit)
     class AddedItemsAdapter extends RecyclerView.Adapter<AddedItemsAdapter.ViewHolder> {

@@ -133,6 +133,7 @@
                             android:text="@string/role_admin"
                             android:textSize="14sp"
                             android:textColor="@color/black"
+                            android:buttonTint="@color/radio_button_black"
                             android:layout_marginEnd="@dimen/spacing_sm"/>
                             
                         <RadioButton
@@ -142,6 +143,7 @@
                             android:text="@string/role_trainer"
                             android:textSize="14sp"
                             android:textColor="@color/black"
+                            android:buttonTint="@color/radio_button_black"
                             android:layout_marginEnd="@dimen/spacing_sm"/>
                             
                         <RadioButton
@@ -150,7 +152,8 @@
                             android:layout_height="wrap_content"
                             android:text="@string/role_member"
                             android:textSize="14sp"
-                            android:textColor="@color/black"/>
+                            android:textColor="@color/black"
+                            android:buttonTint="@color/radio_button_black"/>
                     </RadioGroup>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

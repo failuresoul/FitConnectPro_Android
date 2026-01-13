@@ -238,6 +238,7 @@ public class ViewMealPlanActivity extends AppCompatActivity implements Navigatio
             return;
         }
         
+        Toast.makeText(this, "Opening LogMeal...", Toast.LENGTH_SHORT).show(); // Debug
         Intent intent = new Intent(this, LogMealActivity.class);
         intent.putExtra("MEAL_TYPE", currentMealType);
         startActivity(intent);
@@ -257,6 +258,8 @@ public class ViewMealPlanActivity extends AppCompatActivity implements Navigatio
             // Already here, just close drawer
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
+        } else if (id == R.id.nav_log_meal) {
+             startActivity(new Intent(this, LogMealActivity.class));
         } else if (id == R.id.nav_water) {
             startActivity(new Intent(this, WaterTrackerActivity.class));
         } else if (id == R.id.nav_logout) {
