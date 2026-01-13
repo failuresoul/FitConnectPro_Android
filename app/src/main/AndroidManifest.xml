@@ -156,6 +156,17 @@
          </activity>
 
         <activity
+            android:name=".activities.member.LogMealActivity"
+            android:label="Log Meal"
+            android:theme="@style/Theme.FitConnectPro.NoActionBar"
+            android:parentActivityName=".activities.member.ViewMealPlanActivity"
+            android:exported="false">
+             <meta-data
+                 android:name="android.support.PARENT_ACTIVITY"
+                 android:value=".activities.member.ViewMealPlanActivity" />
+         </activity>
+
+        <activity
             android:name=".activities.member.WorkoutExecutionActivity"
             android:label="Execute Workout"
             android:theme="@style/Theme.FitConnectPro.NoActionBar"

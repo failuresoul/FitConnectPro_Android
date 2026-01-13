@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -237,8 +238,9 @@ public class ViewMealPlanActivity extends AppCompatActivity implements Navigatio
             return;
         }
         
-        // TODO: Implement custom meal logging
-        Toast.makeText(this, "Custom meal logging for " + currentMealType + " coming soon!", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, LogMealActivity.class);
+        intent.putExtra("MEAL_TYPE", currentMealType);
+        startActivity(intent);
     }
 
     @Override

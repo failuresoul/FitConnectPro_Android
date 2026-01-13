@@ -48,16 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_PROGRESS_REPORTS = "member_progress_reports";
     private static final String TABLE_MEMBER_MEALS = "member_meals";
     private static final String TABLE_MEMBER_MEAL_ITEMS = "member_meal_items";
-    private static final String TABLE_MEMBERSHIPS = "memberships";
-    private static final String TABLE_TRAINER_ASSIGNMENTS = "trainer_assignments";
-    private static final String TABLE_PAYMENTS = "payments";
-    private static final String TABLE_ATTENDANCE = "attendance";
-    private static final String TABLE_APPLICATIONS = "applications";
-    private static final String TABLE_SALARIES = "salaries";
-    private static final String TABLE_MESSAGES = "messages";
-    private static final String TABLE_WORKOUT_PLANS = "workout_plans";
-    private static final String TABLE_WORKOUT_SESSIONS = "workout_sessions";
-    private static final String TABLE_WORKOUT_LOGS = "workout_logs";
+
     
 
 
