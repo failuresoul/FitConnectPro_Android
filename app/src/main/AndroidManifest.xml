@@ -110,6 +110,23 @@
             android:label="Member Dashboard"
             android:theme="@style/Theme.FitConnectPro.NoActionBar"
             android:exported="false" />
+
+        <activity
+            android:name=".activities.member.ViewWorkoutPlanActivity"
+            android:label="Workout Plan"
+            android:theme="@style/Theme.FitConnectPro.NoActionBar"
+            android:parentActivityName=".activities.member.MemberDashboardActivity"
+            android:exported="false">
+             <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.member.MemberDashboardActivity" />
+        </activity>
+
+        <activity
+            android:name=".activities.member.WorkoutExecutionActivity"
+            android:label="Execute Workout"
+            android:theme="@style/Theme.FitConnectPro.NoActionBar"
+            android:exported="false" />
     </application>
 
 </manifest>

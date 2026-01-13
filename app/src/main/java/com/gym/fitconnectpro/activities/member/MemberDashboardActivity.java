@@ -176,7 +176,15 @@ public class MemberDashboardActivity extends AppCompatActivity implements Naviga
 
     private void setupListeners() {
         btnMessageTrainer.setOnClickListener(v -> Toast.makeText(this, "Trainer Chat - Coming Soon", Toast.LENGTH_SHORT).show());
-        btnStartWorkout.setOnClickListener(v -> Toast.makeText(this, "Start Workout - Coming Soon", Toast.LENGTH_SHORT).show());
+        
+        View.OnClickListener planClickListener = v -> {
+            Intent intent = new Intent(MemberDashboardActivity.this, ViewWorkoutPlanActivity.class);
+            startActivity(intent);
+        };
+        
+        btnStartWorkout.setOnClickListener(planClickListener);
+        tvActivePlan.setOnClickListener(planClickListener);
+        
         btnViewMeals.setOnClickListener(v -> Toast.makeText(this, "View Meals - Coming Soon", Toast.LENGTH_SHORT).show());
     }
 

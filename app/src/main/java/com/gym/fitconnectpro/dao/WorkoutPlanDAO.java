@@ -203,4 +203,51 @@ public class WorkoutPlanDAO {
         }
         return exercises;
     }
+
+    public WorkoutPlan getPlanForDate(int memberId, String date) {
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        try {
+            db = dbHelper.getReadableDatabase();
+            String query = "SELECT * FROM workout_plans " +
+                           "WHERE member_id = ? " +
+                           "AND start_date <= ? AND end_date >= ? " +
+                           "AND status = 'ACTIVE' " +
+                           "ORDER BY created_at DESC LIMIT 1";
+            
+            cursor = db.rawQuery(query, new String[]{String.valueOf(memberId), date, date});
+            
+            if (cursor != null && cursor.moveToFirst()) {
+                WorkoutPlan plan = new WorkoutPlan();
+                plan.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+                plan.setTrainerId(cursor.getInt(cursor.getColumnIndexOrThrow("trainer_id")));
+                plan.setMemberId(cursor.getInt(cursor.getColumnIndexOrThrow("member_id")));
+                plan.setPlanName(cursor.getString(cursor.getColumnIndexOrThrow("plan_name")));
+                plan.setStartDate(cursor.getString(cursor.getColumnIndexOrThrow("start_date")));
+                plan.setEndDate(cursor.getString(cursor.getColumnIndexOrThrow("end_date")));
+                plan.setStatus(cursor.getString(cursor.getColumnIndexOrThrow("status")));
+                return plan;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting plan for date: " + date, e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+        return null;
+    }
+
+    public boolean updatePlanStatus(int planId, String status) {
+        SQLiteDatabase db = null;
+        try {
+            db = dbHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put("status", status);
+            
+            int rows = db.update("workout_plans", values, "id = ?", new String[]{String.valueOf(planId)});
+            return rows > 0;
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating plan status", e);
+            return false;
+        }
+    }
 }

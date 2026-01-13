@@ -482,6 +482,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         createMealPlanTables(db);
         createProgressTables(db);
+        createWorkoutSessionsTable(db);
+        createWorkoutLogsTable(db);
+    }
+
+    private void createWorkoutSessionsTable(SQLiteDatabase db) {
+        String TABLE_WORKOUT_SESSIONS = "workout_sessions";
+        String CREATE_WORKOUT_SESSIONS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_WORKOUT_SESSIONS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + KEY_PLAN_ID + " INTEGER," // Can be null if ad-hoc
+                + KEY_MEMBER_ID + " INTEGER NOT NULL,"
+                + KEY_TRAINER_ID + " INTEGER,"
+                + "session_date DATE DEFAULT CURRENT_DATE,"
+                + "duration_minutes INTEGER,"
+                + "calories_burned INTEGER,"
+                + "notes TEXT,"
+                + KEY_CREATED_AT + " DATETIME DEFAULT CURRENT_TIMESTAMP,"
+                + "FOREIGN KEY(" + KEY_PLAN_ID + ") REFERENCES " + TABLE_WORKOUT_PLANS + "(" + KEY_ID + "),"
+                + "FOREIGN KEY(" + KEY_MEMBER_ID + ") REFERENCES " + TABLE_MEMBERS + "(member_id),"
+                + "FOREIGN KEY(" + KEY_TRAINER_ID + ") REFERENCES " + TABLE_TRAINERS + "(" + KEY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_WORKOUT_SESSIONS_TABLE);
+    }
+    
+    private void createWorkoutLogsTable(SQLiteDatabase db) {
+        String TABLE_WORKOUT_LOGS = "workout_logs";
+        String CREATE_WORKOUT_LOGS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_WORKOUT_LOGS + "("
+                + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + "session_id INTEGER NOT NULL,"
+                + KEY_EXERCISE_ID + " INTEGER NOT NULL,"
+                + "set_number INTEGER,"
+                + "reps INTEGER,"
+                + "weight REAL,"
+                + "notes TEXT,"
+                + "FOREIGN KEY(session_id) REFERENCES workout_sessions(" + KEY_ID + ") ON DELETE CASCADE,"
+                + "FOREIGN KEY(" + KEY_EXERCISE_ID + ") REFERENCES " + TABLE_EXERCISES + "(" + KEY_ID + ")"
+                + ")";
+        db.execSQL(CREATE_WORKOUT_LOGS_TABLE);
     }
     
     private void createProgressTables(SQLiteDatabase db) {
