@@ -180,8 +180,8 @@
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_weight="1"
-                android:text="2000"
-                android:textSize="12sp"
+                android:text="2000ml"
+                android:textSize="11sp"
                 style="@style/Widget.AppCompat.Button.Small"
                 android:layout_marginEnd="4dp"/>
 
@@ -190,8 +190,8 @@
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_weight="1"
-                android:text="2500"
-                android:textSize="12sp"
+                android:text="2500ml"
+                android:textSize="11sp"
                 style="@style/Widget.AppCompat.Button.Small"
                 android:layout_marginEnd="4dp"/>
 
@@ -200,8 +200,8 @@
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_weight="1"
-                android:text="3000"
-                android:textSize="12sp"
+                android:text="3000ml"
+                android:textSize="11sp"
                 style="@style/Widget.AppCompat.Button.Small"
                 android:layout_marginEnd="4dp"/>
 
@@ -210,8 +210,8 @@
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_weight="1"
-                android:text="3500"
-                android:textSize="12sp"
+                android:text="3500ml"
+                android:textSize="11sp"
                 style="@style/Widget.AppCompat.Button.Small"/>
         </LinearLayout>
         

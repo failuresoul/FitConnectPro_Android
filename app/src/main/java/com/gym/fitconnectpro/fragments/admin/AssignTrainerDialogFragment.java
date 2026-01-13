@@ -172,17 +172,18 @@ public class AssignTrainerDialogFragment extends DialogFragment {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String assignedDate = dateFormat.format(calendar.getTime());
 
-        // Check if member already has an active assignment
+        // Get existing trainer ID for proper success message
         Integer existingTrainerId = memberDAO.getAssignedTrainerId(selectedMember.getMemberId());
         
-        if (existingTrainerId != null && existingTrainerId.equals(selectedTrainer.getTrainerId())) {
-            Toast.makeText(requireContext(), 
-                "Member is already assigned to this trainer", 
-                Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Debug logging
+        android.util.Log.d("AssignTrainer", "=== Assignment Debug Info ===");
+        android.util.Log.d("AssignTrainer", "Member ID: " + selectedMember.getMemberId());
+        android.util.Log.d("AssignTrainer", "Member Name: " + selectedMember.getFullName());
+        android.util.Log.d("AssignTrainer", "Existing Trainer ID: " + existingTrainerId);
+        android.util.Log.d("AssignTrainer", "Selected Trainer ID: " + selectedTrainer.getTrainerId());
+        android.util.Log.d("AssignTrainer", "Selected Trainer Name: " + selectedTrainer.getFullName());
 
-        // Perform assignment
+        // Perform assignment (DAO will handle completing old assignment and creating new one)
         boolean success = trainerDAO.assignTrainerToMember(
             selectedTrainer.getTrainerId(),
             selectedMember.getMemberId(),
@@ -190,11 +191,18 @@ public class AssignTrainerDialogFragment extends DialogFragment {
         );
 
         if (success) {
-            String message = existingTrainerId != null 
-                ? "Trainer reassigned successfully" 
-                : "Trainer assigned successfully";
+            // Show appropriate message based on whether this was a new assignment or reassignment
+            String message;
+            if (existingTrainerId != null && existingTrainerId.intValue() == selectedTrainer.getTrainerId()) {
+                // Same trainer - this shouldn't happen but handle it gracefully
+                message = "Trainer " + selectedTrainer.getFullName() + " is already assigned to this member";
+            } else if (existingTrainerId != null) {
+                message = "Trainer reassigned successfully from previous trainer to " + selectedTrainer.getFullName();
+            } else {
+                message = "Trainer " + selectedTrainer.getFullName() + " assigned successfully";
+            }
             
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
             
             // Notify listener
             if (listener != null) {

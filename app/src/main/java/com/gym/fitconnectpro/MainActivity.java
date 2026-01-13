@@ -69,9 +69,6 @@ public class MainActivity extends AppCompatActivity {
             // Force database creation/opening
             databaseHelper.getWritableDatabase();
 
-            // Populate sample data (Step 10.3)
-            com.gym.fitconnectpro.database.DataSeeder.populateSampleData(this);
-
             Log.d(TAG, "Database initialized successfully");
 
             // Delay for splash screen effect, then navigate

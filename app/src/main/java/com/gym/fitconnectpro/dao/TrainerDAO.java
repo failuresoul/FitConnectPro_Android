@@ -172,6 +172,86 @@ public class TrainerDAO {
     }
 
     /**
+     * Get trainer by user ID
+     */
+    public Trainer getTrainerByUserId(int userId) {
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        Trainer trainer = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            
+            Log.d(TAG, "Fetching trainer for user_id: " + userId);
+            
+            String query = "SELECT t.id, t.user_id, t.full_name, t.specialization, " +
+                           "t.experience_years, t.certification, t.salary, t.status, " +
+                           "u.username, u.email, u.phone " +
+                           "FROM trainers t " +
+                           "JOIN users u ON t.user_id = u.id " +
+                           "WHERE t.user_id = ?";
+            
+            cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                trainer = new Trainer();
+                trainer.setTrainerId(getIntFromCursor(cursor, "id"));
+                trainer.setUserId(getIntFromCursor(cursor, "user_id"));
+                trainer.setFullName(getStringFromCursor(cursor, "full_name"));
+                trainer.setSpecialization(getStringFromCursor(cursor, "specialization"));
+                trainer.setExperienceYears(getIntFromCursor(cursor, "experience_years"));
+                trainer.setCertification(getStringFromCursor(cursor, "certification"));
+                trainer.setSalary(getDoubleFromCursor(cursor, "salary"));
+                trainer.setStatus(getStringFromCursor(cursor, "status"));
+                
+                // Joined columns - might be missing
+                String username = getStringFromCursor(cursor, "username");
+                if (username != null) trainer.setUsername(username);
+                
+                String email = getStringFromCursor(cursor, "email");
+                if (email != null) trainer.setEmail(email);
+                
+                String phone = getStringFromCursor(cursor, "phone");
+                if (phone != null) trainer.setPhone(phone);
+                
+                Log.d(TAG, "Trainer found: " + trainer.getFullName());
+            } else {
+                Log.e(TAG, "No trainer found for user_id: " + userId);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting trainer by user id", e);
+            e.printStackTrace();
+        } finally {
+             if (cursor != null) cursor.close();
+        }
+        return trainer;
+    }
+
+    private String getStringFromCursor(Cursor cursor, String columnName) {
+        int index = cursor.getColumnIndex(columnName);
+        if (index != -1) {
+            return cursor.getString(index);
+        }
+        return null;
+    }
+
+    private int getIntFromCursor(Cursor cursor, String columnName) {
+        int index = cursor.getColumnIndex(columnName);
+        if (index != -1) {
+            return cursor.getInt(index);
+        }
+        return 0;
+    }
+    
+    private double getDoubleFromCursor(Cursor cursor, String columnName) {
+        int index = cursor.getColumnIndex(columnName);
+        if (index != -1) {
+            return cursor.getDouble(index);
+        }
+        return 0.0;
+    }
+
+    /**
      * Get assigned clients count
      */
     public int getAssignedClientsCount(int trainerId) {
@@ -381,23 +461,33 @@ public class TrainerDAO {
             db = dbHelper.getWritableDatabase();
             db.beginTransaction();
             
+            Log.d(TAG, "=== assignTrainerToMember START ===");
+            Log.d(TAG, "Trainer ID: " + trainerId + ", Member ID: " + memberId);
+            
             // Check if member already has an active assignment
             Cursor existingCursor = db.rawQuery(
-                "SELECT id FROM trainer_assignments WHERE member_id = ? AND status = 'ACTIVE'",
+                "SELECT id, trainer_id FROM trainer_assignments WHERE member_id = ? AND status = 'ACTIVE'",
                 new String[]{String.valueOf(memberId)}
             );
             
             if (existingCursor != null && existingCursor.moveToFirst()) {
+                int existingAssignmentId = existingCursor.getInt(0);
+                int existingTrainerId = existingCursor.getInt(1);
+                
+                Log.d(TAG, "Found existing ACTIVE assignment: ID=" + existingAssignmentId + ", TrainerID=" + existingTrainerId);
+                
                 // Update existing assignment to COMPLETED
                 ContentValues updateValues = new ContentValues();
                 updateValues.put("status", "COMPLETED");
                 updateValues.put("updated_at", dateFormat.format(new Date()));
                 
-                db.update("trainer_assignments", updateValues, 
-                         "member_id = ? AND status = 'ACTIVE'", 
-                         new String[]{String.valueOf(memberId)});
+                int rowsUpdated = db.update("trainer_assignments", updateValues, 
+                                 "member_id = ? AND status = 'ACTIVE'", 
+                                 new String[]{String.valueOf(memberId)});
                 
-                Log.d(TAG, "Completed previous assignment for member: " + memberId);
+                Log.d(TAG, "Completed " + rowsUpdated + " previous assignment(s) for member: " + memberId);
+            } else {
+                Log.d(TAG, "No existing ACTIVE assignment found for member: " + memberId);
             }
             if (existingCursor != null) existingCursor.close();
             
@@ -414,8 +504,10 @@ public class TrainerDAO {
             
             if (result != -1) {
                 db.setTransactionSuccessful();
-                Log.d(TAG, "Successfully assigned trainer " + trainerId + " to member " + memberId);
+                Log.d(TAG, "Successfully assigned trainer " + trainerId + " to member " + memberId + " (new assignment ID: " + result + ")");
                 return true;
+            } else {
+                Log.e(TAG, "Failed to insert new assignment");
             }
             
             return false;

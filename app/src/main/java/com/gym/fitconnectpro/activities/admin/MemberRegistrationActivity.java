@@ -41,6 +41,13 @@ public class MemberRegistrationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_member_registration);
+
+        // Setup toolbar
+        androidx.appcompat.widget.Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         Toast.makeText(this, "Launching Member Registration...", Toast.LENGTH_SHORT).show();
 
         initializeViews();
@@ -91,7 +98,7 @@ public class MemberRegistrationActivity extends AppCompatActivity {
         spinnerGender.setAdapter(genderAdapter);
 
         // Membership Type Spinner
-        String[] membershipTypes = {"Basic – $30/month", "Premium – $50/month", "Elite – $80/month"};
+        String[] membershipTypes = {"Basic – 1000/month", "Premium – 2000/month", "Elite – 3000/month"};
         ArrayAdapter<String> membershipAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, membershipTypes);
         membershipAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -276,13 +283,13 @@ public class MemberRegistrationActivity extends AppCompatActivity {
         double membershipFee = 0;
         switch (membershipType) {
             case "Basic":
-                membershipFee = 30.0;
+                membershipFee = 1000;
                 break;
             case "Premium":
-                membershipFee = 50.0;
+                membershipFee = 2000;
                 break;
             case "Elite":
-                membershipFee = 80.0;
+                membershipFee = 3000;
                 break;
         }
 

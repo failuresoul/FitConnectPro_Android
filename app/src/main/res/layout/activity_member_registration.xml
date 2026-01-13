@@ -1,24 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <!-- Blue Toolbar -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/spacing_md">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <TextView
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primary"
+            app:title="Member Registration"
+            app:titleTextColor="@color/white"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/member_registration"
-            android:textSize="@dimen/text_size_xl"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="@dimen/spacing_lg" />
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_md">
+
+            <!-- Remove the old title TextView since it's now in toolbar -->
 
         <!-- Full Name -->
         <com.google.android.material.textfield.TextInputLayout
@@ -263,12 +278,12 @@
 
             <Button
                 android:id="@+id/btnClearForm"
+                style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_sm"
                 android:layout_weight="1"
-                android:text="@string/clear_form"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_marginEnd="@dimen/spacing_sm" />
+                android:text="@string/clear_form" />
 
             <Button
                 android:id="@+id/btnRegisterMember"
@@ -288,4 +303,4 @@
 
     </LinearLayout>
 </ScrollView>
-
+</LinearLayout>

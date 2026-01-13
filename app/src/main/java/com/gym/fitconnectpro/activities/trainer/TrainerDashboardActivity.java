@@ -277,7 +277,9 @@ public class TrainerDashboardActivity extends AppCompatActivity implements Navig
         } else if (id == R.id.nav_reports) {
             loadFragment(com.gym.fitconnectpro.fragments.trainer.ClientProgressFragment.newInstance(), "Client Progress");
         } else if (id == R.id.nav_messages) {
-             Toast.makeText(this, "Messages - Coming Soon", Toast.LENGTH_SHORT).show();
+            loadFragment(com.gym.fitconnectpro.fragments.trainer.TrainerMessagesFragment.newInstance(), "Messages");
+        } else if (id == R.id.nav_profile) {
+            loadFragment(com.gym.fitconnectpro.fragments.trainer.TrainerProfileFragment.newInstance(), "My Profile");
         } else if (id == R.id.nav_logout) {
             session.logout();
             Intent intent = new Intent(this, LoginActivity.class);

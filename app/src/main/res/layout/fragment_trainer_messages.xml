@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <!-- Clients List Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.4"
+        android:orientation="vertical"
+        android:background="@android:color/white">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="My Clients"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:padding="16dp"
+            android:background="#3498db"
+            android:textColor="@android:color/white"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvClients"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"/>
+
+        <TextView
+            android:id="@+id/tvNoClients"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="No clients assigned yet"
+            android:textSize="14sp"
+            android:textColor="#7F8C8D"
+            android:gravity="center"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#E0E0E0"/>
+
+    <!-- Chat Section -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.6"
+        android:background="#FAFAFA">
+
+        <!-- Chat Header -->
+        <TextView
+            android:id="@+id/tvChatHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select a client to start chatting"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="#3498db"
+            android:padding="16dp"/>
+
+        <!-- Messages Area -->
+        <ScrollView
+            android:id="@+id/scrollMessages"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/tvChatHeader"
+            android:layout_above="@id/layoutInput"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvEmptyChat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No messages yet.\nStart the conversation!"
+                    android:textColor="#95A5A6"
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:textStyle="italic"/>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <!-- Input Area -->
+        <LinearLayout
+            android:id="@+id/layoutInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="@android:color/white"
+            android:elevation="4dp">
+
+            <EditText
+                android:id="@+id/etMessageInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Type your message..."
+                android:padding="12dp"
+                android:background="@android:drawable/editbox_background"
+                android:textSize="14sp"
+                android:minHeight="48dp"
+                android:maxLines="3"/>
+
+            <Button
+                android:id="@+id/btnSend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#27ae60"
+                android:layout_marginStart="8dp"
+                android:minWidth="80dp"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

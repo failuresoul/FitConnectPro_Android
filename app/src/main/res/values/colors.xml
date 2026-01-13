@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Brand Colors -->
-    <color name="primary">#2196F3</color>
-    <color name="primary_dark">#1976D2</color>
-    <color name="primary_light">#BBDEFB</color>
+    <!-- Primary Brand Colors -->
+    <color name="primary">#1976D2</color> <!-- Material Blue 700 -->
+    <color name="primary_dark">#1565C0</color> <!-- Material Blue 800 -->
+    <color name="primary_light">#BBDEFB</color> <!-- Material Blue 100 -->
     <color name="accent">#FF4081</color>
 
     <!-- Semantic Colors -->

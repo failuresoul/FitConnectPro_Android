@@ -19,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "FitConnectPro.db";
-    private static final int DATABASE_VERSION = 22; // Updated to 22 for Friend Requests
+    private static final int DATABASE_VERSION = 23; // Updated to 23 to fix NULL status in trainer_assignments
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -298,6 +298,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         
         if (oldVersion < 22) {
             createFriendRequestsTable(db);
+        }
+        
+        if (oldVersion < 23) {
+            // Version 23: Fix trainer_assignments with NULL status (from old DataSeeder bug)
+            try {
+                ContentValues cv = new ContentValues();
+                cv.put("status", "ACTIVE");
+                int updated = db.update(TABLE_TRAINER_ASSIGNMENTS, cv, "status IS NULL", null);
+                Log.d(TAG, "Fixed " + updated + " trainer assignments with NULL status");
+            } catch (Exception e) {
+                Log.e(TAG, "Error fixing NULL status assignments", e);
+            }
         }
 
         // Re-enable foreign keys
