@@ -59,16 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_WORKOUT_SESSIONS = "workout_sessions";
     private static final String TABLE_WORKOUT_LOGS = "workout_logs";
     
-    // NEW TABLES
-    private static final String TABLE_EXERCISES = "exercises";
-    private static final String TABLE_PLAN_EXERCISES = "plan_exercises";
-    private static final String TABLE_DAILY_GOALS = "trainer_daily_goals";
-    private static final String TABLE_FOODS = "foods";
-    private static final String TABLE_MEAL_PLANS = "trainer_meal_plans";
-    private static final String TABLE_MEAL_PLAN_FOODS = "meal_plan_foods";
-    private static final String TABLE_WEIGHT_LOGS = "member_weight_history";
-    private static final String TABLE_DAILY_LOGS = "member_daily_logs";
-    private static final String TABLE_PROGRESS_REPORTS = "member_progress_reports";
+
 
     // Daily Goals Columns
     private static final String KEY_GOAL_DATE = "goal_date";
