@@ -223,6 +223,15 @@ public class WorkoutPlanDAO {
                 plan.setTrainerId(cursor.getInt(cursor.getColumnIndexOrThrow("trainer_id")));
                 plan.setMemberId(cursor.getInt(cursor.getColumnIndexOrThrow("member_id")));
                 plan.setPlanName(cursor.getString(cursor.getColumnIndexOrThrow("plan_name")));
+                // Try catch for new columns
+                try {
+                    plan.setFocusArea(cursor.getString(cursor.getColumnIndexOrThrow("focus_area")));
+                    plan.setInstructions(cursor.getString(cursor.getColumnIndexOrThrow("instructions")));
+                } catch (IllegalArgumentException e) {
+                   // Columns might not exist in old version cursor? 
+                   // No, query SELECT * should return them if DB upgraded.
+                   // But safe to ignore if null.
+                }
                 plan.setStartDate(cursor.getString(cursor.getColumnIndexOrThrow("start_date")));
                 plan.setEndDate(cursor.getString(cursor.getColumnIndexOrThrow("end_date")));
                 plan.setStatus(cursor.getString(cursor.getColumnIndexOrThrow("status")));

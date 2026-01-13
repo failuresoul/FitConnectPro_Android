@@ -78,4 +78,81 @@ public class WorkoutDAO {
             if (db != null) db.endTransaction();
         }
     }
+
+    /**
+     * Get all workout sessions for a member on a specific date
+     */
+    public List<com.gym.fitconnectpro.models.WorkoutSession> getTodayWorkoutSessions(int memberId, String date) {
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        List<com.gym.fitconnectpro.models.WorkoutSession> sessions = new java.util.ArrayList<>();
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            String query = "SELECT * FROM workout_sessions WHERE member_id = ? AND session_date = ? ORDER BY id DESC";
+            cursor = db.rawQuery(query, new String[]{String.valueOf(memberId), date});
+
+            while (cursor.moveToNext()) {
+                com.gym.fitconnectpro.models.WorkoutSession session = new com.gym.fitconnectpro.models.WorkoutSession();
+                session.setSessionId(cursor.getInt(cursor.getColumnIndex("id")));
+                session.setMemberId(cursor.getInt(cursor.getColumnIndex("member_id")));
+                session.setPlanId(cursor.getInt(cursor.getColumnIndex("plan_id")));
+                session.setSessionDate(cursor.getString(cursor.getColumnIndex("session_date")));
+                session.setDurationMinutes(cursor.getInt(cursor.getColumnIndex("duration_minutes")));
+                session.setCaloriesBurned(cursor.getInt(cursor.getColumnIndex("calories_burned")));
+                session.setNotes(cursor.getString(cursor.getColumnIndex("notes")));
+
+                // Load exercises for this session
+                List<com.gym.fitconnectpro.models.WorkoutLog> exercises = getSessionLogs(session.getSessionId());
+                session.setExercises(exercises);
+
+                sessions.add(session);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting workout sessions", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+
+        return sessions;
+    }
+
+    /**
+     * Get all exercise logs for a specific workout session
+     */
+    public List<com.gym.fitconnectpro.models.WorkoutLog> getSessionLogs(int sessionId) {
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        List<com.gym.fitconnectpro.models.WorkoutLog> logs = new java.util.ArrayList<>();
+
+        try {
+            db = dbHelper.getReadableDatabase();
+            String query = "SELECT wl.*, e.name as exercise_name " +
+                          "FROM workout_logs wl " +
+                          "LEFT JOIN exercises e ON wl.exercise_id = e.id " +
+                          "WHERE wl.session_id = ? " +
+                          "ORDER BY wl.exercise_id, wl.set_number";
+            cursor = db.rawQuery(query, new String[]{String.valueOf(sessionId)});
+
+            while (cursor.moveToNext()) {
+                com.gym.fitconnectpro.models.WorkoutLog log = new com.gym.fitconnectpro.models.WorkoutLog();
+                log.setLogId(cursor.getInt(cursor.getColumnIndex("id")));
+                log.setSessionId(cursor.getInt(cursor.getColumnIndex("session_id")));
+                log.setExerciseId(cursor.getInt(cursor.getColumnIndex("exercise_id")));
+                log.setExerciseName(cursor.getString(cursor.getColumnIndex("exercise_name")));
+                log.setSetNumber(cursor.getInt(cursor.getColumnIndex("set_number")));
+                log.setReps(cursor.getString(cursor.getColumnIndex("reps")));
+                log.setWeight(cursor.getDouble(cursor.getColumnIndex("weight")));
+                log.setNotes(cursor.getString(cursor.getColumnIndex("notes")));
+
+                logs.add(log);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting session logs", e);
+        } finally {
+            if (cursor != null) cursor.close();
+        }
+
+        return logs;
+    }
 }

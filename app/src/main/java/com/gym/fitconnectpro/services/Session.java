@@ -87,7 +87,7 @@ public class Session {
         this.currentMember = member;
         this.userType = "MEMBER";
 
-        editor.putInt(KEY_USER_ID, member.getId());
+        editor.putInt(KEY_USER_ID, member.getUserId()); // FIX: Use userId from users table, not member_id
         editor.putString(KEY_USERNAME, member.getUsername());
         editor.putString(KEY_USER_TYPE, "MEMBER");
         editor.putString(KEY_EMAIL, member.getEmail());

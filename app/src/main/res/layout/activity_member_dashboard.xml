@@ -26,12 +26,11 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- Dashboard Content (default view) -->
         <ScrollView
             android:id="@+id/member_dashboard_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
             android:fillViewport="true"
             android:background="#F2F4F8">
 
@@ -265,29 +264,31 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginBottom="8dp"
                                 android:text="Quick Stats"
-                                android:textStyle="bold"
                                 android:textColor="#9B59B6"
-                                android:layout_marginBottom="8dp"/>
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tvWeightStat"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Wt: 75kg"
-                                android:textSize="13sp"/>
+                                android:textSize="13sp" />
+
                             <TextView
                                 android:id="@+id/tvWorkoutsStat"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Workouts: 12"
-                                android:textSize="13sp"/>
+                                android:textSize="13sp" />
+
                             <TextView
                                 android:id="@+id/tvStreakStat"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="This Week: 3"
-                                android:textSize="13sp"/>
+                                android:textSize="13sp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
@@ -311,12 +312,11 @@
             </LinearLayout>
         </ScrollView>
 
-        <!-- Fragment Container (for other screens) -->
         <FrameLayout
             android:id="@+id/fragment_container_member"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
             android:visibility="gone"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

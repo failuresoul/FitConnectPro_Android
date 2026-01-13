@@ -5,6 +5,8 @@ public class WorkoutPlan {
     private int trainerId;
     private int memberId;
     private String planName;
+    private String focusArea;
+    private String instructions;
     private String startDate;
     private String endDate;
     private String status; // PENDING, ACTIVE, COMPLETED
@@ -23,6 +25,12 @@ public class WorkoutPlan {
 
     public String getPlanName() { return planName; }
     public void setPlanName(String planName) { this.planName = planName; }
+
+    public String getFocusArea() { return focusArea; }
+    public void setFocusArea(String focusArea) { this.focusArea = focusArea; }
+
+    public String getInstructions() { return instructions; }
+    public void setInstructions(String instructions) { this.instructions = instructions; }
 
     public String getStartDate() { return startDate; }
     public void setStartDate(String startDate) { this.startDate = startDate; }

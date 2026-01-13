@@ -19,7 +19,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Info
     private static final String DATABASE_NAME = "FitConnectPro.db";
-    private static final int DATABASE_VERSION = 11; // Updated to 11 for user_id in members
+    private static final int DATABASE_VERSION = 14; // Updated to 14 to retry creation of session tables
 
     // Table Names
     private static final String TABLE_USERS = "users";
@@ -33,6 +33,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_SALARIES = "salaries";
     private static final String TABLE_MESSAGES = "messages";
     private static final String TABLE_WORKOUT_PLANS = "workout_plans";
+    private static final String TABLE_WORKOUT_SESSIONS = "workout_sessions";
+    private static final String TABLE_WORKOUT_LOGS = "workout_logs";
     
     // NEW TABLES
     private static final String TABLE_EXERCISES = "exercises";
@@ -181,13 +183,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
 
             if (oldVersion < 7) {
-                // Version 7: Add Trainer Daily Goals table
-                // Since createExerciseTables now includes the daily goals table creation logic (via my previous edit, although I attached it to createExerciseTables which is a bit messy, let's fix that by ensuring the method is called appropriately or just add the specific table creation here)
-                // Actually, I modified `createExerciseTables` to include the new table, so calling it again is fine as it uses IF NOT EXISTS.
-                // However, cleaner approach is to call specific logic.
-                // Let's rely on the modified createExerciseTables for now or just run the SQL directly here to be safe.
-                
-                 String CREATE_DAILY_GOALS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_DAILY_GOALS + "("
+                String CREATE_DAILY_GOALS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_DAILY_GOALS + "("
                         + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                         + KEY_TRAINER_ID + " INTEGER NOT NULL,"
                         + KEY_MEMBER_ID + " INTEGER NOT NULL,"
@@ -208,30 +204,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
 
             if (oldVersion < 8) {
-                // Version 8: Add Meal Plan tables and Seed Foods
                 createMealPlanTables(db);
                 seedFoods(db);
             }
 
             if (oldVersion < 9) {
-                // Version 9: Ensure Foods are seeded
                 seedFoods(db);
             }
 
             if (oldVersion < 10) {
-                // Version 10: Add Progress Tracking Tables
                 createProgressTables(db);
                 seedClientData(db);
             }
 
             if (oldVersion < 11) {
-                 // Version 11: Add user_id to members table
-                 // We need to check if column exists first or use try-catch as older versions of SQLite generally support ADD COLUMN
                  try {
                      db.execSQL("ALTER TABLE " + TABLE_MEMBERS + " ADD COLUMN user_id INTEGER");
                  } catch (Exception e) {
                      Log.w(TAG, "Column user_id might already exist: " + e.getMessage());
                  }
+            }
+            
+            if (oldVersion < 12) {
+                 try {
+                     db.execSQL("ALTER TABLE " + TABLE_WORKOUT_PLANS + " ADD COLUMN focus_area TEXT");
+                     db.execSQL("ALTER TABLE " + TABLE_WORKOUT_PLANS + " ADD COLUMN instructions TEXT");
+                 } catch (Exception e) {
+                     Log.w(TAG, "Columns might already exist: " + e.getMessage());
+                 }
+            }
+            
+            if (oldVersion < 14) {
+                 // Version 13 & 14: Ensure workout session tables exist
+                 // Using version 14 to force a re-check if version 13 upgrade failed silently
+                 createWorkoutSessionsTable(db);
+                 createWorkoutLogsTable(db);
             }
 
             // Re-enable foreign keys
@@ -416,6 +423,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_TRAINER_ID + " INTEGER NOT NULL,"
                 + KEY_MEMBER_ID + " INTEGER NOT NULL,"
                 + KEY_PLAN_NAME + " TEXT NOT NULL,"
+                + "focus_area TEXT,"
+                + "instructions TEXT,"
                 + KEY_START_DATE + " DATE NOT NULL,"
                 + KEY_END_DATE + " DATE NOT NULL,"
                 + KEY_STATUS + " TEXT DEFAULT 'PENDING' CHECK(" + KEY_STATUS + " IN ('PENDING', 'ACTIVE', 'COMPLETED')),"
